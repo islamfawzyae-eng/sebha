@@ -327,10 +327,27 @@
     doneEl.classList.remove('show'); hintEl.style.opacity = 1;
   }
 
+  // الضغطة بتتحسب بس لو كانت "لمسة" — مش سحب/سكرول
+  let down = null;
   stage.addEventListener('pointerdown', e=>{
+    if(e.pointerType === 'mouse' && e.button !== 0) return;
+    down = {x:e.clientX, y:e.clientY, t:performance.now(), id:e.pointerId};
+  });
+  stage.addEventListener('pointermove', e=>{
+    if(down && e.pointerId === down.id && Math.hypot(e.clientX-down.x, e.clientY-down.y) > 10) down = null;
+  });
+  stage.addEventListener('pointercancel', ()=>{ down = null; });
+  stage.addEventListener('pointerleave', ()=>{ down = null; });
+  stage.addEventListener('pointerup', e=>{
+    if(!down || e.pointerId !== down.id) return;
+    const moved = Math.hypot(e.clientX-down.x, e.clientY-down.y);
+    const held = performance.now() - down.t;
+    down = null;
+    if(moved > 10 || held > 700) return;   // سحب أو ضغطة طويلة — مش بتتحسب
     const r = stage.getBoundingClientRect();
     tap(e.clientX-r.left, e.clientY-r.top);
   });
+  window.addEventListener('scroll', ()=>{ down = null; }, {passive:true});
   window.addEventListener('keydown', e=>{
     if(e.code==='Space' || e.code==='Enter'){ e.preventDefault(); if(!doneEl.classList.contains('show')) tap(); }
   });
