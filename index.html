@@ -9,7 +9,7 @@
 <meta property="og:description" content="استغفر 100 مرة وشوف كام مرة الناس استغفرت مع بعض">
 <meta name="theme-color" content="#0b1d17">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Amiri+Quran&family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Amiri+Quran&family=Inter:ital,wght@0,400;0,600;1,400&family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg1:#0b1d17; --bg2:#04100c;
@@ -17,11 +17,11 @@
     --text:#f3ead2; --muted:#9db3a6;
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-  html,body{height:100%}
+  html{height:100%}
   body{
     font-family:'Cairo',sans-serif;color:var(--text);
-    background:radial-gradient(ellipse at 50% 35%, #163a2d 0%, var(--bg1) 45%, var(--bg2) 100%);
-    overflow:hidden;user-select:none;-webkit-user-select:none;
+    background:radial-gradient(ellipse at 50% 35%, #163a2d 0%, var(--bg1) 45%, var(--bg2) 100%) fixed;
+    overflow-x:hidden;overflow-y:auto;user-select:none;min-height:100%;-webkit-user-select:none;
     display:flex;flex-direction:column;align-items:center;
   }
   /* زخرفة خفيفة في الخلفية */
@@ -59,14 +59,24 @@
     .ayah{margin-top:8px}
     .ayah p{font-size:13.5px;line-height:1.9}
     .hint{display:none}
+    .ayah .ayah-en{font-size:11px;line-height:1.5;margin-top:4px}
+    .g-goal .en,.g-label .en{font-size:.8em}
     .global{padding:9px 14px;margin-bottom:10px}
     .g-num{font-size:26px}
   }
+  .en{font-family:'Inter','Cairo',sans-serif;direction:ltr;unicode-bidi:isolate;font-size:.85em;opacity:.75;letter-spacing:.2px}
+  .dhikr-en{z-index:2;font-family:'Inter',sans-serif;font-size:13px;letter-spacing:.6px;color:var(--muted);margin-top:-4px;margin-bottom:6px;text-align:center}
+  .ayah .ayah-en{font-family:'Inter',sans-serif;direction:ltr;font-size:12px;line-height:1.65;color:rgba(243,234,210,.6);margin-top:8px;font-style:italic}
+  .ayah .en-ref{font-family:'Inter',sans-serif;direction:ltr;font-size:10.5px}
+  .ayah-ar::after,.ayah-en-box::before{display:none!important}
+  .ayah-ar{margin-top:10px}
+  .ayah-en-box{margin-top:10px}
+  .ayah-en-box .ayah-en{margin-top:0}
   .ayah::before,.ayah::after{content:"";display:block;width:40px;height:1px;margin:0 auto 6px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.6}
   .ayah::after{margin:8px auto 0}
-  #stage{flex:1;width:100%;position:relative;cursor:pointer;touch-action:manipulation}
+  #stage{flex:1;min-height:300px;width:100%;position:relative;cursor:pointer;touch-action:manipulation}
   canvas{position:absolute;inset:0;width:100%;height:100%}
-  .hint{position:absolute;bottom:22px;width:100%;text-align:center;color:var(--muted);font-size:14px;pointer-events:none;transition:opacity .6s}
+  .hint{position:absolute;bottom:4px;width:100%;text-align:center;color:var(--muted);font-size:14px;pointer-events:none;transition:opacity .6s}
   .resume{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:rgba(230,180,80,.15);border:1px solid rgba(230,180,80,.35);
     color:var(--gold-soft);padding:8px 18px;border-radius:999px;font-size:15px;opacity:0;transition:opacity .6s;pointer-events:none;white-space:nowrap}
   .resume.show{opacity:1}
@@ -80,6 +90,8 @@
   .g-num{font-size:clamp(26px,8vw,36px);font-weight:800;color:var(--gold-soft);font-variant-numeric:tabular-nums;line-height:1.25}
   #gTotal{direction:ltr;unicode-bidi:isolate;display:inline-block}
   .g-num small{font-size:15px;color:var(--muted);font-weight:600}
+  .g-live.g-ar{right:14px;left:auto}
+  .g-live.g-en{font-family:'Inter',sans-serif;letter-spacing:1px;font-weight:600}
   .g-live{position:absolute;top:10px;left:14px;font-size:11px;color:#7fd3a8;display:flex;align-items:center;gap:5px}
   .g-live i{width:7px;height:7px;border-radius:50%;background:#3ddc84;box-shadow:0 0 8px #3ddc84;animation:blink 1.6s infinite}
   @keyframes blink{50%{opacity:.25}}
@@ -103,38 +115,46 @@
 </head>
 <body>
   <header>
-    <button class="btn" id="soundBtn" aria-label="الصوت">🔊 <span>الصوت</span></button>
-    <button class="btn" id="resetBtn" aria-label="إعادة">↺ <span>من الأول</span></button>
+    <button class="btn" id="soundBtn" aria-label="الصوت">🔊 <span>الصوت · Sound</span></button>
+    <button class="btn" id="resetBtn" aria-label="إعادة">↺ <span>من الأول · Reset</span></button>
   </header>
 
+  <div class="ayah ayah-ar">
+    <p>﴿فَقُلْتُ اسْتَغْفِرُوا رَبَّكُمْ إِنَّهُ كَانَ غَفَّارًا <i>١٠</i> يُرْسِلِ السَّمَاءَ عَلَيْكُم مِّدْرَارًا <i>١١</i> وَيُمْدِدْكُم بِأَمْوَالٍ وَبَنِينَ وَيَجْعَل لَّكُمْ جَنَّاتٍ وَيَجْعَل لَّكُمْ أَنْهَارًا <i>١٢</i>﴾</p>
+    <span>سورة نوح · الآيات 10–12</span>
+  </div>
+
   <div class="dhikr" id="dhikr">أستغفر الله</div>
+  <div class="dhikr-en">Astaghfirullah · I seek forgiveness from Allah</div>
   <div class="counter"><span class="count" id="count">0</span><span class="total">/ 100</span></div>
   <div class="progress"><div id="bar"></div></div>
 
-  <div class="ayah">
-    <p>﴿فَقُلْتُ اسْتَغْفِرُوا رَبَّكُمْ إِنَّهُ كَانَ غَفَّارًا <i>١٠</i> يُرْسِلِ السَّمَاءَ عَلَيْكُم مِّدْرَارًا <i>١١</i> وَيُمْدِدْكُم بِأَمْوَالٍ وَبَنِينَ وَيَجْعَل لَّكُمْ جَنَّاتٍ وَيَجْعَل لَّكُمْ أَنْهَارًا <i>١٢</i>﴾</p>
-    <span>سورة نوح · الآيات 10–12</span>
+  <div class="ayah ayah-en-box">
+    <p class="ayah-en">“Ask forgiveness of your Lord; indeed, He is ever a Perpetual Forgiver. He will send rain from the sky upon you in abundance, give you increase in wealth and children, and provide for you gardens and rivers.”</p>
+    <span class="en-ref">Surah Nuh · 71:10–12</span>
   </div>
 
   <div id="stage" role="button" aria-label="اضغط للتسبيح" tabindex="0">
     <canvas id="c"></canvas>
     <div class="resume" id="resume"></div>
-    <div class="hint" id="hint">اضغط على السبحة أو في أي مكان ✨</div>
+    <div class="hint" id="hint">اضغط على السبحة أو في أي مكان ✨<br><span class="en">Tap the beads or anywhere</span></div>
   </div>
 
   <footer class="global" id="global">
-    <div class="g-label">🌍 استغفر زوار الصفحة مع بعض</div>
-    <div class="g-num"><span id="gTotal">—</span> <small>مرة</small></div>
-    <div class="g-live"><i></i> مباشر</div>
-    <div class="g-goal">🎯 هدفنا: <b>مليار استغفار</b> بإذن الله</div>
+    <div class="g-label">🌍 استغفر زوار الصفحة مع بعض<br><span class="en">Together, visitors have sought forgiveness</span></div>
+    <div class="g-num"><span id="gTotal">—</span> <small>مرة · times</small></div>
+    <div class="g-live g-ar"><i></i> مباشر</div>
+    <div class="g-live g-en">LIVE <i></i></div>
+    <div class="g-goal">🎯 هدفنا: <b>مليار استغفار</b> بإذن الله<br><span class="en">Our goal: <b>one billion</b>, in shā’ Allah</span></div>
     <div class="g-bar"><div id="gBar"></div></div>
     <div class="g-next" id="gNext"></div>
   </footer>
 
   <div class="done" id="done">
     <h2>تقبّل الله منك</h2>
-    <p>أتممت 100 مرة «أستغفر الله»<br>اللهم اغفر لنا ولوالدينا وللمسلمين أجمعين</p>
-    <button class="btn" id="againBtn">ابدأ من جديد</button>
+    <div class="en" style="font-size:16px;margin-top:-8px">May Allah accept from you</div>
+    <p>أتممت 100 مرة «أستغفر الله»<br>اللهم اغفر لنا ولوالدينا وللمسلمين أجمعين<br><span class="en">You completed 100 × Astaghfirullah</span></p>
+    <button class="btn" id="againBtn">ابدأ من جديد · Start again</button>
   </div>
 
 <script>
@@ -215,7 +235,7 @@
     }catch(e){}
   }
 
-  function renderSoundBtn(){ soundBtn.innerHTML = (soundOn?'🔊':'🔇') + ' <span>' + (soundOn?'الصوت':'صامت') + '</span>'; }
+  function renderSoundBtn(){ soundBtn.innerHTML = (soundOn?'🔊':'🔇') + ' <span>' + (soundOn?'الصوت · Sound':'صامت · Muted') + '</span>'; }
 
   // ===== تحديث الواجهة =====
   function updateUI(){
@@ -428,6 +448,7 @@
   const GOAL = 1e9;
   const STAGES = [1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9];
   const stageName = n => ({1e3:'ألف',1e4:'10 آلاف',1e5:'100 ألف',1e6:'مليون',1e7:'10 مليون',1e8:'100 مليون',1e9:'مليار'})[n];
+  const stageEn = n => ({1e3:'1K',1e4:'10K',1e5:'100K',1e6:'1M',1e7:'10M',1e8:'100M',1e9:'1B'})[n];
   const gBar = document.getElementById('gBar'), gNext = document.getElementById('gNext');
   let lastGoalKey = '';
   function updateGoal(n){
@@ -437,9 +458,10 @@
     const key = next + ':' + Math.floor(pct);
     if(key === lastGoalKey) return; lastGoalKey = key;
     gBar.style.width = pct.toFixed(1) + '%';
-    if(n >= GOAL){ gNext.textContent = 'الحمد لله وصلنا المليار 🤍'; gBar.style.width = '100%'; return; }
+    if(n >= GOAL){ gNext.innerHTML = 'الحمد لله وصلنا المليار 🤍<br><span class="en">Alhamdulillah, we reached one billion</span>'; gBar.style.width = '100%'; return; }
     const left = (next - n).toLocaleString('en-US');
-    gNext.textContent = (prev ? '✅ عدّينا ' + stageName(prev) + ' — ' : '') + 'المرحلة الجاية: ' + stageName(next) + ' (فاضل ' + left + ')';
+    gNext.innerHTML = (prev ? '✅ عدّينا ' + stageName(prev) + ' — ' : '') + 'المرحلة الجاية: ' + stageName(next) + ' (فاضل ' + left + ')'
+      + '<br><span class="en">' + (prev ? '✅ Passed ' + stageEn(prev) + ' · ' : '') + 'Next milestone: ' + stageEn(next) + ' (' + left + ' to go)</span>';
   }
 
   // عدّاد متحرك
@@ -464,7 +486,7 @@
     hintEl.style.opacity = 0;
     if(count<TARGET){
       const rs=document.getElementById('resume');
-      rs.textContent='أهلًا بيك تاني 🤍 كمّل من ' + count;
+      rs.innerHTML='أهلًا بيك تاني 🤍 كمّل من ' + count + ' · <span class="en">Welcome back</span>';
       rs.classList.add('show'); setTimeout(()=>rs.classList.remove('show'), 3000);
     }
   }
