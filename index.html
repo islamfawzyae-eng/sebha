@@ -420,7 +420,7 @@
     const need = 2*tilt + 0.72;     // الارتفاع المطلوب بالنسبة لـ R (الحلقة + الشُرّابة)
     const R = Math.min(W*0.40, (H-24)/need, 230);
     const cx = W/2, cy = 12 + R*tilt + R*0.06 + Math.max(0, (H - 24 - R*need)/2);
-    const bob = Math.sin(now/1400)*4; // حركة طفو خفيفة
+    const bob = 0; // السبحة ثابتة
     placeCenter(cx, cy + bob - R*0.03, R);
 
     // ومضة خلفية
