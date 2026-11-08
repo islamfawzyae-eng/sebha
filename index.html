@@ -8,6 +8,21 @@
 <meta property="og:title" content="سبحة إلكترونية — أستغفر الله 🤍">
 <meta property="og:description" content="استغفر 100 مرة وشوف كام مرة الناس استغفرت مع بعض">
 <meta name="theme-color" content="#1D312F">
+<link rel="icon" type="image/png" href="favicon-64.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="أنس توك">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script>
+  // على anastalk.com نستخدم مانيفست التطبيق الرئيسي، وعلى sebha.anastalk.com المانيفست المحلي
+  (function(){var l=document.createElement('link');l.rel='manifest';
+    l.href=/(^|\.)anastalk\.com$/.test(location.hostname)&&location.hostname!=='sebha.anastalk.com'?'/sebha-app/app.json':'manifest.json';
+    document.head.appendChild(l);})();
+  window.ANASTALK_ICON='icon-192.png';
+  if('serviceWorker' in navigator) addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});
+</script>
+<script src="install.js" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Amiri+Quran&family=Inter:ital,wght@0,400;0,600;1,400&family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
