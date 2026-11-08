@@ -66,6 +66,11 @@
   .g-live{position:absolute;top:10px;left:14px;font-size:11px;color:#7fd3a8;display:flex;align-items:center;gap:5px}
   .g-live i{width:7px;height:7px;border-radius:50%;background:#3ddc84;box-shadow:0 0 8px #3ddc84;animation:blink 1.6s infinite}
   @keyframes blink{50%{opacity:.25}}
+  .g-goal{font-size:14px;color:var(--text);margin-top:6px}
+  .g-goal b{color:var(--gold-soft)}
+  .g-bar{height:7px;border-radius:7px;background:rgba(255,255,255,.08);margin:8px 4px 4px;overflow:hidden}
+  .g-bar>div{height:100%;width:0;border-radius:7px;background:linear-gradient(90deg,#3ddc84,#e6b450);transition:width .6s ease}
+  .g-next{font-size:12px;color:var(--muted)}
   .global.bump .g-num{animation:bump .35s ease}
   @keyframes bump{40%{transform:scale(1.06)}}
   /* شاشة الإتمام */
@@ -99,6 +104,9 @@
     <div class="g-label">🌍 استغفر زوار الصفحة مع بعض</div>
     <div class="g-num"><span id="gTotal">—</span> <small>مرة</small></div>
     <div class="g-live"><i></i> مباشر</div>
+    <div class="g-goal">🎯 هدفنا: <b>مليار استغفار</b> بإذن الله</div>
+    <div class="g-bar"><div id="gBar"></div></div>
+    <div class="g-next" id="gNext"></div>
   </footer>
 
   <div class="done" id="done">
@@ -388,6 +396,24 @@
   window.addEventListener('pagehide', beacon);
   document.addEventListener('visibilitychange', ()=>{ if(document.hidden) beacon(); });
 
+  // ===== الهدف: مليار، على مراحل =====
+  const GOAL = 1e9;
+  const STAGES = [1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9];
+  const stageName = n => ({1e3:'ألف',1e4:'10 آلاف',1e5:'100 ألف',1e6:'مليون',1e7:'10 مليون',1e8:'100 مليون',1e9:'مليار'})[n];
+  const gBar = document.getElementById('gBar'), gNext = document.getElementById('gNext');
+  let lastGoalKey = '';
+  function updateGoal(n){
+    const next = STAGES.find(x => x > n) || GOAL;
+    const prev = STAGES.filter(x => x <= n).pop() || 0;
+    const pct = Math.min(100, (n - prev) / (next - prev) * 100);
+    const key = next + ':' + Math.floor(pct);
+    if(key === lastGoalKey) return; lastGoalKey = key;
+    gBar.style.width = pct.toFixed(1) + '%';
+    if(n >= GOAL){ gNext.textContent = 'الحمد لله وصلنا المليار 🤍'; gBar.style.width = '100%'; return; }
+    const left = (next - n).toLocaleString('en-US');
+    gNext.textContent = (prev ? '✅ عدّينا ' + stageName(prev) + ' — ' : '') + 'المرحلة الجاية: ' + stageName(next) + ' (فاضل ' + left + ')';
+  }
+
   // عدّاد متحرك
   function tickGlobal(){
     if(serverTotal !== null){
@@ -397,7 +423,8 @@
         const diff = target - shown;
         shown += Math.sign(diff) * Math.max(1, Math.ceil(Math.abs(diff)/12));
         gEl.textContent = shown.toLocaleString('en-US');
-      }else if(gEl.textContent === '—'){ gEl.textContent = shown.toLocaleString('en-US'); }
+        updateGoal(shown);
+      }else if(gEl.textContent === '—'){ gEl.textContent = shown.toLocaleString('en-US'); updateGoal(shown); }
     }
     requestAnimationFrame(tickGlobal);
   }
