@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $n   = is_array($in) && isset($in['n']) ? (int)$in['n'] : (int)($_POST['n'] ?? 0);
   $n   = max(0, min($n, 40));            // أقصى حد لكل طلب
 
-  // حد لكل جهاز: 600 في الدقيقة
+  // حد لكل عنوان IP: 300 في الدقيقة (أكتر من جهاز ممكن يشتركوا في نفس الـ IP على نت الموبايل)
   if ($n > 0) {
     $ipDir = $dir . '/ip';
     if (!is_dir($ipDir)) { @mkdir($ipDir, 0755, true); }
@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       [$m, $u] = array_map('intval', explode(':', (string)@file_get_contents($ipF)) + [0, 0]);
       if ($m === $min) $used = $u;
     }
-    $n = max(0, min($n, 600 - $used));
+    $n = max(0, min($n, 300 - $used));
     @file_put_contents($ipF, $min . ':' . ($used + $n), LOCK_EX);
     if (mt_rand(1, 500) === 1) {                  // تنظيف قديم أحيانًا
       foreach (glob($ipDir . '/*') as $f) { if (filemtime($f) < time() - 600) @unlink($f); }

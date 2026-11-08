@@ -42,6 +42,7 @@
     transition:transform .15s ease;
   }
   .dhikr.pop{transform:scale(1.08)}
+  .dhikr.wait{opacity:.55;transition:transform .15s ease, opacity .2s}
   .counter{display:flex;align-items:baseline;gap:8px;z-index:2;margin-top:2px}
   .count{font-size:clamp(44px,12vw,68px);font-weight:800;color:#fff;font-variant-numeric:tabular-nums;line-height:1}
   .total{font-size:20px;color:var(--muted);font-weight:600}
@@ -202,8 +203,14 @@
   }
 
   // ===== الضغطة =====
+  const COOLDOWN = 800;   // أقل وقت بين الضغطة والتانية (ملّي ثانية)
+  let lastTap = 0;
   function tap(x, y){
     if(count >= TARGET) return;
+    const nowT = performance.now();
+    if(nowT - lastTap < COOLDOWN) return;   // ضغطة سريعة زيادة — مش بتتحسب
+    lastTap = nowT;
+    dhikrEl.classList.add('wait'); setTimeout(()=>dhikrEl.classList.remove('wait'), COOLDOWN);
     count++;
     rotTarget -= STEP;
     glow = 1; flash = 1;
