@@ -51,6 +51,9 @@
     display:flex;align-items:center;gap:6px;transition:background .2s;
   }
   .btn:hover{background:rgba(230,203,184,.15)}
+  header{gap:8px}
+  .btn.on{background:rgba(172,48,50,.35);border-color:rgba(172,48,50,.9)}
+  @media (max-width:430px){.btn{font-size:12.5px;padding:7px 11px}}
   .center-dhikr{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;z-index:1;width:70%}
   .center-dhikr .dhikr{margin:0;font-size:var(--dz,44px)}
   .center-dhikr .dhikr-en{margin:0;font-size:var(--ez,11px);line-height:1.45}
@@ -149,6 +152,7 @@
   <header>
     <button class="btn" id="soundBtn" aria-label="الصوت">🔊 <span>الصوت · Sound</span></button>
     <button class="btn" id="resetBtn" aria-label="إعادة">↺ <span>من الأول · Reset</span></button>
+    <button class="btn" id="bellBtn" aria-label="تذكير بالاستغفار">🔔 <span>تذكير · Remind</span></button>
   </header>
 
   <div class="ayah ayah-ar">
@@ -597,6 +601,53 @@
   document.addEventListener('visibilitychange', ()=>{ if(document.hidden) save(); });
   if(count>=TARGET) doneEl.classList.add('show');
   requestAnimationFrame(frame);
+})();
+</script>
+<div id="atToast" style="position:fixed;left:50%;top:18px;transform:translate(-50%,-160%);z-index:9998;max-width:min(92vw,440px);direction:rtl;
+  background:#24403C;color:#F2E9D2;border:1px solid rgba(230,203,184,.4);border-radius:16px;padding:12px 16px;font:600 14.5px/1.8 Cairo,system-ui,sans-serif;
+  box-shadow:0 14px 40px rgba(0,0,0,.4);transition:transform .4s cubic-bezier(.2,.9,.3,1.2);text-align:center"></div>
+<script>
+(function(){
+  var btn=document.getElementById('bellBtn'), toastEl=document.getElementById('atToast'), tt;
+  function toast(h,ms){toastEl.innerHTML=h;toastEl.style.transform='translate(-50%,0)';clearTimeout(tt);tt=setTimeout(function(){toastEl.style.transform='translate(-50%,-160%)';},ms||6000);}
+  var ua=navigator.userAgent, isIOS=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  var standalone=(matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
+  var inApp=/Instagram|FBAN|FBAV|FB_IAB|TikTok|musical_ly|Snapchat/i.test(ua);
+  var supported='serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;
+  function setOn(on){btn.classList.toggle('on',on);btn.innerHTML=on?'🔔 <span>التذكير شغال · On</span>':'🔔 <span>تذكير · Remind</span>';}
+  function u8(b){b=b.replace(/-/g,'+').replace(/_/g,'/');b+='='.repeat((4-b.length%4)%4);var r=atob(b),a=new Uint8Array(r.length);for(var i=0;i<r.length;i++)a[i]=r.charCodeAt(i);return a;}
+  function post(body){return fetch('push/subscribe.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(r){return r.json();});}
+  if(supported) navigator.serviceWorker.ready.then(function(reg){return reg.pushManager.getSubscription();}).then(function(s){setOn(!!s&&Notification.permission==='granted');}).catch(function(){});
+  btn.addEventListener('click',function(){
+    if(inApp){toast('الإشعارات مش بتشتغل جوه إنستجرام 🙏<br>افتح الصفحة في المتصفح من ⋯ فوق ← «فتح في المتصفح»',8000);return;}
+    if(!supported){
+      if(isIOS&&!standalone) toast('على آيفون: ضيف التطبيق للشاشة الرئيسية الأول<br>زرار المشاركة ⬆︎ ← «إضافة إلى الشاشة الرئيسية»<br>وبعدين افتحه من الأيقونة ودوس 🔔',10000);
+      else toast('المتصفح ده مش بيدعم الإشعارات 🙏 جرّب كروم أو Safari');
+      return;
+    }
+    if(Notification.permission==='denied'){toast('الإشعارات مقفولة للموقع ده 🔕<br>فعّلها من إعدادات المتصفح ← الإشعارات',8000);return;}
+    btn.disabled=true;
+    navigator.serviceWorker.ready.then(function(reg){
+      return reg.pushManager.getSubscription().then(function(old){
+        if(old&&Notification.permission==='granted'){
+          if(!confirm('توقف تذكير الاستغفار؟')) return 'keep';
+          return post({action:'unsubscribe',sub:old.toJSON()}).catch(function(){}).then(function(){return old.unsubscribe();}).then(function(){setOn(false);toast('وقفنا التذكير 🔕');return 'off';});
+        }
+        return Notification.requestPermission().then(function(p){
+          if(p!=='granted'){toast('محتاجين توافق على الإشعارات علشان التذكير يوصلك 🙏');return 'no';}
+          return fetch('push/subscribe.php',{cache:'no-store'}).then(function(r){return r.json();}).then(function(k){
+            return reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:u8(k.key)});
+          }).then(function(sub){
+            return post({sub:sub.toJSON(),tz:(Intl.DateTimeFormat().resolvedOptions().timeZone||''),plan:'twice'});
+          }).then(function(r){
+            setOn(true);
+            toast(r&&r.test>=200&&r.test<300?'اتفعّل التذكير ✅<br>بعتنالك إشعار تجربة دلوقتي 🤍':'اتفعّل التذكير ✅',7000);
+          });
+        });
+      });
+    }).catch(function(e){toast('حصلت مشكلة، جرّب تاني 🙏<br><small style="opacity:.7">'+(e&&e.message||'')+'</small>');})
+      .then(function(){btn.disabled=false;});
+  });
 })();
 </script>
 </body>
