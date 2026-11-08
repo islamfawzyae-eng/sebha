@@ -27,4 +27,5 @@ file_put_contents($f, json_encode($rec), LOCK_EX);
 
 // إشعار تجربة على طول علشان الشخص يشوف شكله
 $code = push_send($rec, reminder_message() + ['tag' => 'welcome']);
+@file_put_contents(PUSH_DIR . '/log.txt', date('c') . ' subscribe ' . parse_url($rec['endpoint'], PHP_URL_HOST) . ' -> ' . $code . "\n", FILE_APPEND | LOCK_EX);
 echo json_encode(['ok' => true, 'test' => $code]);
