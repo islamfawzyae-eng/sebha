@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>سبحة إلكترونية — أستغفر الله | Anas Talk</title>
+<meta name="description" content="سبحة إلكترونية — استغفر الله 100 مرة، وشارك في عداد الاستغفار الجماعي">
+<meta property="og:title" content="سبحة إلكترونية — أستغفر الله 🤍">
+<meta property="og:description" content="استغفر 100 مرة وشوف كام مرة الناس استغفرت مع بعض">
+<meta name="theme-color" content="#0b1d17">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1:#0b1d17; --bg2:#04100c;
+    --gold:#e6b450; --gold-soft:#f6dc95;
+    --text:#f3ead2; --muted:#9db3a6;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    font-family:'Cairo',sans-serif;color:var(--text);
+    background:radial-gradient(ellipse at 50% 35%, #163a2d 0%, var(--bg1) 45%, var(--bg2) 100%);
+    overflow:hidden;user-select:none;-webkit-user-select:none;
+    display:flex;flex-direction:column;align-items:center;
+  }
+  /* زخرفة خفيفة في الخلفية */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;opacity:.06;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='%23e6b450' stroke-width='1'%3E%3Cpath d='M40 4 L48 32 L76 40 L48 48 L40 76 L32 48 L4 40 L32 32 Z'/%3E%3Ccircle cx='40' cy='40' r='10'/%3E%3C/g%3E%3C/svg%3E");
+  }
+  header{width:100%;max-width:560px;display:flex;justify-content:space-between;align-items:center;padding:16px 18px 0;z-index:2}
+  .btn{
+    background:rgba(255,255,255,.06);border:1px solid rgba(230,180,80,.25);color:var(--text);
+    font-family:inherit;font-size:14px;padding:8px 14px;border-radius:999px;cursor:pointer;
+    display:flex;align-items:center;gap:6px;transition:background .2s;
+  }
+  .btn:hover{background:rgba(230,180,80,.15)}
+  .dhikr{
+    font-family:'Amiri',serif;font-size:clamp(38px,10vw,64px);color:var(--gold-soft);
+    margin-top:14px;text-shadow:0 0 24px rgba(230,180,80,.35);line-height:1.3;z-index:2;
+    transition:transform .15s ease;
+  }
+  .dhikr.pop{transform:scale(1.08)}
+  .counter{display:flex;align-items:baseline;gap:8px;z-index:2;margin-top:2px}
+  .count{font-size:clamp(44px,12vw,68px);font-weight:800;color:#fff;font-variant-numeric:tabular-nums;line-height:1}
+  .total{font-size:20px;color:var(--muted);font-weight:600}
+  .progress{width:min(70vw,320px);height:6px;border-radius:6px;background:rgba(255,255,255,.08);margin-top:12px;overflow:hidden;z-index:2}
+  .progress>div{height:100%;width:0;background:linear-gradient(90deg,#b9822b,var(--gold-soft));border-radius:6px;transition:width .3s ease}
+  #stage{flex:1;width:100%;position:relative;cursor:pointer;touch-action:manipulation}
+  canvas{position:absolute;inset:0;width:100%;height:100%}
+  .hint{position:absolute;bottom:22px;width:100%;text-align:center;color:var(--muted);font-size:14px;pointer-events:none;transition:opacity .6s}
+  .resume{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:rgba(230,180,80,.15);border:1px solid rgba(230,180,80,.35);
+    color:var(--gold-soft);padding:8px 18px;border-radius:999px;font-size:15px;opacity:0;transition:opacity .6s;pointer-events:none;white-space:nowrap}
+  .resume.show{opacity:1}
+  .global{
+    z-index:2;width:min(92vw,420px);margin:0 auto 18px;padding:12px 18px;border-radius:18px;text-align:center;
+    background:linear-gradient(180deg,rgba(230,180,80,.10),rgba(230,180,80,.04));border:1px solid rgba(230,180,80,.28);
+    position:relative;transition:opacity .5s;
+  }
+  .global.off{opacity:0;pointer-events:none}
+  .g-label{font-size:14px;color:var(--muted)}
+  .g-num{font-size:clamp(26px,8vw,36px);font-weight:800;color:var(--gold-soft);font-variant-numeric:tabular-nums;line-height:1.25}
+  #gTotal{direction:ltr;unicode-bidi:isolate;display:inline-block}
+  .g-num small{font-size:15px;color:var(--muted);font-weight:600}
+  .g-live{position:absolute;top:10px;left:14px;font-size:11px;color:#7fd3a8;display:flex;align-items:center;gap:5px}
+  .g-live i{width:7px;height:7px;border-radius:50%;background:#3ddc84;box-shadow:0 0 8px #3ddc84;animation:blink 1.6s infinite}
+  @keyframes blink{50%{opacity:.25}}
+  .global.bump .g-num{animation:bump .35s ease}
+  @keyframes bump{40%{transform:scale(1.06)}}
+  /* شاشة الإتمام */
+  .done{
+    position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+    background:rgba(3,12,9,.82);backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .5s;z-index:10;text-align:center;padding:24px;
+  }
+  .done.show{opacity:1;pointer-events:auto}
+  .done h2{font-family:'Amiri',serif;font-size:clamp(40px,11vw,64px);color:var(--gold-soft);text-shadow:0 0 30px rgba(230,180,80,.5)}
+  .done p{color:var(--muted);font-size:17px;max-width:340px;line-height:1.8}
+  .done .btn{font-size:17px;padding:12px 28px;background:linear-gradient(180deg,#e6b450,#b9822b);color:#1b1305;border:none;font-weight:800}
+</style>
+</head>
+<body>
+  <header>
+    <button class="btn" id="soundBtn" aria-label="الصوت">🔊 <span>الصوت</span></button>
+    <button class="btn" id="resetBtn" aria-label="إعادة">↺ <span>من الأول</span></button>
+  </header>
+
+  <div class="dhikr" id="dhikr">أستغفر الله</div>
+  <div class="counter"><span class="count" id="count">0</span><span class="total">/ 100</span></div>
+  <div class="progress"><div id="bar"></div></div>
+
+  <div id="stage" role="button" aria-label="اضغط للتسبيح" tabindex="0">
+    <canvas id="c"></canvas>
+    <div class="resume" id="resume"></div>
+    <div class="hint" id="hint">اضغط على السبحة أو في أي مكان ✨</div>
+  </div>
+
+  <footer class="global" id="global">
+    <div class="g-label">🌍 استغفر زوار الصفحة مع بعض</div>
+    <div class="g-num"><span id="gTotal">—</span> <small>مرة</small></div>
+    <div class="g-live"><i></i> مباشر</div>
+  </footer>
+
+  <div class="done" id="done">
+    <h2>تقبّل الله منك</h2>
+    <p>أتممت 100 مرة «أستغفر الله»<br>اللهم اغفر لنا ولوالدينا وللمسلمين أجمعين</p>
+    <button class="btn" id="againBtn">ابدأ من جديد</button>
+  </div>
+
+<script>
+(function(){
+  const TARGET = 100;
+  const BEADS = 33;
+  const STEP = Math.PI*2/BEADS;
+
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d');
+  const stage = document.getElementById('stage');
+  const countEl = document.getElementById('count');
+  const barEl = document.getElementById('bar');
+  const dhikrEl = document.getElementById('dhikr');
+  const hintEl = document.getElementById('hint');
+  const doneEl = document.getElementById('done');
+  const soundBtn = document.getElementById('soundBtn');
+
+  // ===== الحالة =====
+  let count = 0, soundOn = true;
+  try{
+    const s = JSON.parse(localStorage.getItem('sebha-istighfar')||'{}');
+    if(typeof s.count==='number') count = Math.min(s.count, TARGET);
+    if(typeof s.sound==='boolean') soundOn = s.sound;
+  }catch(e){}
+  function save(){ try{ localStorage.setItem('sebha-istighfar', JSON.stringify({count, sound:soundOn})); }catch(e){} }
+
+  let rot = -count*STEP, rotTarget = rot;   // دوران السبحة
+  let glow = 0, flash = 0, t0 = performance.now();
+  const ripples = [];
+
+  // ===== المقاس =====
+  let W=0,H=0,DPR=1;
+  function resize(){
+    DPR = Math.min(window.devicePixelRatio||1, 2);
+    W = stage.clientWidth; H = stage.clientHeight;
+    canvas.width = W*DPR; canvas.height = H*DPR;
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+  }
+  window.addEventListener('resize', resize);
+
+  // ===== الصوت (طقّة حبّات) =====
+  let actx = null;
+  function clack(){
+    if(!soundOn) return;
+    try{
+      if(!actx) actx = new (window.AudioContext||window.webkitAudioContext)();
+      if(actx.state==='suspended') actx.resume();
+      const now = actx.currentTime;
+      // طقّتين قريبين زي حبّتين بيخبطوا في بعض
+      [0, 0.035].forEach((d,k)=>{
+        const len = 0.06;
+        const buf = actx.createBuffer(1, Math.floor(actx.sampleRate*len), actx.sampleRate);
+        const data = buf.getChannelData(0);
+        for(let i=0;i<data.length;i++){ data[i] = (Math.random()*2-1) * Math.pow(1-i/data.length, 6); }
+        const src = actx.createBufferSource(); src.buffer = buf;
+        const bp = actx.createBiquadFilter(); bp.type='bandpass';
+        bp.frequency.value = (k? 3200: 2400) + Math.random()*400; bp.Q.value = 6;
+        const g = actx.createGain(); g.gain.value = k? .05 : .09;
+        src.connect(bp).connect(g).connect(actx.destination);
+        src.start(now+d);
+      });
+    }catch(e){}
+  }
+  function chime(){
+    if(!soundOn) return;
+    try{
+      if(!actx) actx = new (window.AudioContext||window.webkitAudioContext)();
+      const now = actx.currentTime;
+      [523.25, 659.25, 783.99, 1046.5].forEach((f,i)=>{
+        const o = actx.createOscillator(); o.type='sine'; o.frequency.value=f;
+        const g = actx.createGain();
+        g.gain.setValueAtTime(0, now+i*.12);
+        g.gain.linearRampToValueAtTime(.04, now+i*.12+.02);
+        g.gain.exponentialRampToValueAtTime(.001, now+i*.12+1.2);
+        o.connect(g).connect(actx.destination); o.start(now+i*.12); o.stop(now+i*.12+1.3);
+      });
+    }catch(e){}
+  }
+
+  function renderSoundBtn(){ soundBtn.innerHTML = (soundOn?'🔊':'🔇') + ' <span>' + (soundOn?'الصوت':'صامت') + '</span>'; }
+
+  // ===== تحديث الواجهة =====
+  function updateUI(){
+    countEl.textContent = count.toString();
+    barEl.style.width = (count/TARGET*100)+'%';
+  }
+
+  // ===== الضغطة =====
+  function tap(x, y){
+    if(count >= TARGET) return;
+    count++;
+    rotTarget -= STEP;
+    glow = 1; flash = 1;
+    ripples.push({x: x ?? W/2, y: y ?? H/2, r: 0, a: .6});
+    clack();
+    window.__sebhaAdd && window.__sebhaAdd();
+    try{ navigator.vibrate && navigator.vibrate(15); }catch(e){}
+    dhikrEl.classList.add('pop'); setTimeout(()=>dhikrEl.classList.remove('pop'), 130);
+    hintEl.style.opacity = 0;
+    updateUI(); save();
+    if(count === TARGET){
+      setTimeout(()=>{ doneEl.classList.add('show'); chime(); }, 450);
+    }
+  }
+  function reset(){
+    count = 0; rot = rotTarget = 0; save(); updateUI();
+    doneEl.classList.remove('show'); hintEl.style.opacity = 1;
+  }
+
+  stage.addEventListener('pointerdown', e=>{
+    const r = stage.getBoundingClientRect();
+    tap(e.clientX-r.left, e.clientY-r.top);
+  });
+  window.addEventListener('keydown', e=>{
+    if(e.code==='Space' || e.code==='Enter'){ e.preventDefault(); if(!doneEl.classList.contains('show')) tap(); }
+  });
+  soundBtn.addEventListener('click', ()=>{ soundOn=!soundOn; renderSoundBtn(); save(); });
+  document.getElementById('resetBtn').addEventListener('click', reset);
+  document.getElementById('againBtn').addEventListener('click', reset);
+
+  // ===== الرسم =====
+  function drawBead(x, y, r, depth, isMarker, glowAmt){
+    // ظل
+    ctx.save();
+    ctx.globalAlpha = .35*depth;
+    ctx.fillStyle = '#000';
+    ctx.beginPath(); ctx.ellipse(x+r*.15, y+r*1.05, r*.9, r*.28, 0, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+
+    // توهّج
+    if(glowAmt > 0.01){
+      const gg = ctx.createRadialGradient(x,y,r*.4,x,y,r*3.2);
+      gg.addColorStop(0, `rgba(255,225,130,${.95*glowAmt})`);
+      gg.addColorStop(.4, `rgba(255,190,80,${.3*glowAmt})`);
+      gg.addColorStop(1, 'rgba(255,190,80,0)');
+      ctx.fillStyle = gg;
+      ctx.beginPath(); ctx.arc(x,y,r*3.2,0,Math.PI*2); ctx.fill();
+    }
+
+    // جسم الحبّاية (كرة 3D)
+    const lx = x - r*.35, ly = y - r*.4;
+    const g = ctx.createRadialGradient(lx, ly, r*.05, x, y, r*1.05);
+    if(isMarker){
+      g.addColorStop(0, '#d8fff0'); g.addColorStop(.25, '#3fae86');
+      g.addColorStop(.75, '#0f5a41'); g.addColorStop(1, '#03241a');
+    }else{
+      const b = 1 + glowAmt*.35;
+      g.addColorStop(0, '#fff6dc');
+      g.addColorStop(.22, `rgb(${Math.min(255,240*b)|0},${Math.min(255,190*b)|0},${Math.min(255,95*b)|0})`);
+      g.addColorStop(.7, '#9a5d17');
+      g.addColorStop(1, '#3a1f05');
+    }
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.fill();
+
+    // انعكاس لامع
+    ctx.fillStyle = 'rgba(255,255,255,.55)';
+    ctx.beginPath(); ctx.ellipse(lx+r*.05, ly-r*.02, r*.22, r*.13, -0.6, 0, Math.PI*2); ctx.fill();
+    // انعكاس سفلي خفيف
+    ctx.strokeStyle = 'rgba(255,220,160,.18)'; ctx.lineWidth = r*.08;
+    ctx.beginPath(); ctx.arc(x, y, r*.82, Math.PI*.15, Math.PI*.85); ctx.stroke();
+  }
+
+  function frame(now){
+    const dt = Math.min(50, now - t0); t0 = now;
+    rot += (rotTarget - rot) * Math.min(1, dt*0.014);
+    glow *= Math.pow(0.997, dt);
+    flash *= Math.pow(0.992, dt);
+
+    ctx.clearRect(0,0,W,H);
+    const cx = W/2, cy = H*0.47;
+    const R = Math.min(W*0.40, H*0.62, 230);
+    const tilt = 0.42;              // ميل الحلقة (المنظور)
+    const bob = Math.sin(now/1400)*4; // حركة طفو خفيفة
+
+    // ومضة خلفية
+    if(flash > 0.01){
+      const fg = ctx.createRadialGradient(cx, cy+R*tilt, 0, cx, cy+R*tilt, R*1.6);
+      fg.addColorStop(0, `rgba(255,205,110,${.22*flash})`);
+      fg.addColorStop(1, 'rgba(255,205,110,0)');
+      ctx.fillStyle = fg; ctx.fillRect(0,0,W,H);
+    }
+
+    // الخيط
+    ctx.strokeStyle = 'rgba(200,160,90,.35)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.ellipse(cx, cy+bob, R, R*tilt, 0, 0, Math.PI*2); ctx.stroke();
+
+    // الحبّات مرتبة حسب العمق
+    const activeIdx = count % BEADS; // الحبّاية اللي قدّام
+    const list = [];
+    for(let i=0;i<BEADS;i++){
+      const th = Math.PI/2 + i*STEP + rot;
+      const s = Math.sin(th);
+      const depth = (s+1)/2;                 // 0 بعيد — 1 قريب
+      const scale = 0.62 + 0.38*depth;
+      list.push({i, x: cx + Math.cos(th)*R, y: cy + bob + s*R*tilt, z: s, scale, depth});
+    }
+    list.sort((a,b)=>a.z-b.z);
+    const baseR = Math.max(9, R*0.088);
+    for(const b of list){
+      const isFront = count>0 && b.i === activeIdx;
+      drawBead(b.x, b.y, baseR*b.scale, b.depth, b.i===0, isFront ? glow : 0);
+    }
+
+    // الشُرّابة (الشوشة) — ثابتة تحت الحلقة
+    const tx = cx, ty = cy + bob + R*tilt + baseR*1.25;
+    const sway = Math.sin(now/700)*3 + (rot-rotTarget)*30;
+    ctx.save();
+    ctx.translate(tx, ty);
+    // حبّة الإمام
+    drawBead(0, baseR*0.9, baseR*0.9, 1, true, 0);
+    ctx.rotate(sway*Math.PI/180);
+    for(let k=-6;k<=6;k++){
+      ctx.strokeStyle = k%2 ? 'rgba(230,180,80,.85)' : 'rgba(190,140,55,.85)';
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.moveTo(k*1.2, baseR*1.7);
+      ctx.quadraticCurveTo(k*2.5, baseR*3, k*3.4, baseR*4.4);
+      ctx.stroke();
+    }
+    ctx.fillStyle = '#c9902e';
+    ctx.beginPath(); ctx.ellipse(0, baseR*1.75, baseR*.45, baseR*.22, 0, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+
+    // تموّجات الضغط
+    for(let k=ripples.length-1;k>=0;k--){
+      const rp = ripples[k];
+      rp.r += dt*0.35; rp.a -= dt*0.0018;
+      if(rp.a<=0){ ripples.splice(k,1); continue; }
+      ctx.strokeStyle = `rgba(246,220,149,${rp.a})`; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(rp.x, rp.y, rp.r, 0, Math.PI*2); ctx.stroke();
+    }
+
+    requestAnimationFrame(frame);
+  }
+
+  // ===== العداد الجماعي =====
+  const API = 'api.php';
+  const gEl = document.getElementById('gTotal'), gBox = document.getElementById('global');
+  let pending = 0, serverTotal = null, inflight = false, shown = 0, fails = 0;
+  try{ pending = Math.max(0, parseInt(localStorage.getItem('sebha-pending')||'0',10)||0); }catch(e){}
+  function savePending(){ try{ localStorage.setItem('sebha-pending', String(pending)); }catch(e){} }
+
+  function applyTotal(t){
+    if(typeof t !== 'number') return;
+    serverTotal = t; fails = 0; gBox.classList.remove('off');
+  }
+  async function flush(){
+    if(inflight) return;
+    inflight = true;
+    try{
+      let res;
+      if(pending > 0){
+        const n = Math.min(pending, 40);
+        res = await fetch(API, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({n}), cache:'no-store'});
+        if(res.ok){ pending -= n; savePending(); }
+      }else{
+        res = await fetch(API + '?t=' + Date.now(), {cache:'no-store'});
+      }
+      if(!res.ok) throw 0;
+      const j = await res.json();
+      applyTotal(j.total);
+    }catch(e){
+      fails++; if(serverTotal === null && fails > 1) gBox.classList.add('off');
+    }finally{ inflight = false; }
+  }
+  // بنبعت الضغطات كل ثانيتين ونحدّث الرقم من السيرفر كل 5 ثواني
+  let lastPoll = 0;
+  setInterval(()=>{
+    const now = Date.now();
+    if(pending > 0 || now - lastPoll > 5000){ lastPoll = now; flush(); }
+  }, 2000);
+  function beacon(){
+    if(pending <= 0) return;
+    try{
+      const n = Math.min(pending, 40);
+      if(navigator.sendBeacon(API, new Blob([JSON.stringify({n})], {type:'application/json'}))){ pending -= n; savePending(); }
+    }catch(e){}
+  }
+  window.addEventListener('pagehide', beacon);
+  document.addEventListener('visibilitychange', ()=>{ if(document.hidden) beacon(); });
+
+  // عدّاد متحرك
+  function tickGlobal(){
+    if(serverTotal !== null){
+      const target = serverTotal + pending;
+      if(shown === 0) shown = target;
+      if(shown !== target){
+        const diff = target - shown;
+        shown += Math.sign(diff) * Math.max(1, Math.ceil(Math.abs(diff)/12));
+        gEl.textContent = shown.toLocaleString('en-US');
+      }else if(gEl.textContent === '—'){ gEl.textContent = shown.toLocaleString('en-US'); }
+    }
+    requestAnimationFrame(tickGlobal);
+  }
+  requestAnimationFrame(tickGlobal);
+  window.__sebhaAdd = ()=>{ pending++; savePending(); gBox.classList.remove('bump'); void gBox.offsetWidth; gBox.classList.add('bump'); };
+
+  resize(); renderSoundBtn(); updateUI(); flush();
+  if(count>0){
+    hintEl.style.opacity = 0;
+    if(count<TARGET){
+      const rs=document.getElementById('resume');
+      rs.textContent='أهلًا بيك تاني 🤍 كمّل من ' + count;
+      rs.classList.add('show'); setTimeout(()=>rs.classList.remove('show'), 3000);
+    }
+  }
+  window.addEventListener('pagehide', save);
+  document.addEventListener('visibilitychange', ()=>{ if(document.hidden) save(); });
+  if(count>=TARGET) doneEl.classList.add('show');
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,2 @@
+# منع الوصول لملفات git
+RedirectMatch 404 /\.git
