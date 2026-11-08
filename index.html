@@ -8,6 +8,7 @@
 <meta property="og:title" content="سبحة إلكترونية — أستغفر الله 🤍">
 <meta property="og:description" content="استغفر 100 مرة وشوف كام مرة الناس استغفرت مع بعض">
 <meta name="theme-color" content="#1D312F">
+<script>try{if(localStorage.getItem('anastalk-lang')==='en')document.documentElement.classList.add('lang-en');}catch(e){}</script>
 <link rel="icon" type="image/png" href="favicon-64.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -20,7 +21,7 @@
     l.href=/(^|\.)anastalk\.com$/.test(location.hostname)&&location.hostname!=='sebha.anastalk.com'?'/sebha-app/app.json':'manifest.json';
     document.head.appendChild(l);})();
   window.ANASTALK_ICON='icon-192.png';
-  if('serviceWorker' in navigator) addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});
+  if('serviceWorker' in navigator) addEventListener('load',function(){navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(function(r){r.update();}).catch(function(){});});
 </script>
 <script src="install.js" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -52,6 +53,14 @@
   }
   .btn:hover{background:rgba(230,203,184,.15)}
   header{gap:8px}
+  /* اللغة: عربي افتراضيًا، والزرار يبدّل للإنجليزي */
+  html:not(.lang-en) .L-en{display:none!important}
+  html.lang-en .L-ar{display:none!important}
+  .L-en{font-family:'Inter','Cairo',sans-serif}
+  i.L-ar,i.L-en{font-style:normal}
+  .btn.lang{padding:5px;gap:2px;font-family:'Inter','Cairo',sans-serif;font-weight:700}
+  .btn.lang i{font-style:normal;padding:3px 8px;border-radius:999px;opacity:.6;line-height:1.2}
+  html:not(.lang-en) .btn.lang .la,html.lang-en .btn.lang .le{background:var(--red);opacity:1;color:var(--egg)}
   .btn.on{background:rgba(172,48,50,.35);border-color:rgba(172,48,50,.9)}
   @media (max-width:430px){.btn{font-size:12.5px;padding:7px 11px}}
   .center-dhikr{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;z-index:1;width:70%}
@@ -125,6 +134,8 @@
   .g-num small{font-size:15px;color:var(--muted);font-weight:600}
   .g-live.g-ar{right:14px;left:auto}
   .g-live.g-en{font-family:'Inter',sans-serif;letter-spacing:1px;font-weight:600}
+  html.lang-en .g-live.g-en{left:auto;right:14px}
+  html.lang-en .g-label{padding:0 46px}
   .g-live{position:absolute;top:10px;left:14px;font-size:11px;color:var(--sand);display:flex;align-items:center;gap:5px}
   .g-live i{width:7px;height:7px;border-radius:50%;background:#3ddc84;box-shadow:0 0 8px #3ddc84;animation:blink 1.6s infinite}
   @keyframes blink{50%{opacity:.25}}
@@ -150,18 +161,19 @@
 <body>
 <div class="glow" aria-hidden="true"></div>
   <header>
-    <button class="btn" id="soundBtn" aria-label="الصوت">🔊 <span>الصوت · Sound</span></button>
-    <button class="btn" id="resetBtn" aria-label="إعادة">↺ <span>من الأول · Reset</span></button>
-    <button class="btn" id="bellBtn" aria-label="تذكير بالاستغفار">🔔 <span>تذكير · Remind</span></button>
+    <button class="btn" id="soundBtn" aria-label="الصوت">🔊 <span><i class="L-ar">الصوت</i><i class="L-en">Sound</i></span></button>
+    <button class="btn" id="resetBtn" aria-label="إعادة">↺ <span><i class="L-ar">من الأول</i><i class="L-en">Reset</i></span></button>
+    <button class="btn" id="bellBtn" aria-label="تذكير بالاستغفار">🔔 <span><i class="L-ar">تذكير</i><i class="L-en">Remind</i></span></button>
+    <button class="btn lang" id="langBtn" aria-label="Language / اللغة"><i class="la">ع</i><i class="le">EN</i></button>
   </header>
 
-  <div class="ayah ayah-ar">
+  <div class="ayah ayah-ar L-ar">
     <p>﴿فَقُلْتُ اسْتَغْفِرُوا رَبَّكُمْ إِنَّهُ كَانَ غَفَّارًا <i>١٠</i> يُرْسِلِ السَّمَاءَ عَلَيْكُم مِّدْرَارًا <i>١١</i> وَيُمْدِدْكُم بِأَمْوَالٍ وَبَنِينَ وَيَجْعَل لَّكُمْ جَنَّاتٍ وَيَجْعَل لَّكُمْ أَنْهَارًا <i>١٢</i>﴾</p>
     <span>سورة نوح · الآيات 10–12</span>
   </div>
 
 
-  <div class="ayah ayah-en-box">
+  <div class="ayah ayah-en-box L-en">
     <p class="ayah-en">“Ask forgiveness of your Lord; indeed, He is ever a Perpetual Forgiver. He will send rain from the sky upon you in abundance, give you increase in wealth and children, and provide for you gardens and rivers.”</p>
     <span class="en-ref">Surah Nuh · 71:10–12</span>
   </div>
@@ -173,32 +185,32 @@
     <canvas id="c"></canvas>
     <div class="center-dhikr" id="centerDhikr">
       <div class="dhikr" id="dhikr">أستغفر الله</div>
-      <div class="dhikr-en"><b>Astaghfirullah</b><br>I seek forgiveness from Allah</div>
+      <div class="dhikr-en L-en"><b>Astaghfirullah</b><br>I seek forgiveness from Allah</div>
     </div>
     <div class="resume" id="resume"></div>
-    <div class="hint" id="hint">اضغط على السبحة أو في أي مكان ✨<br><span class="en">Tap the beads or anywhere</span></div>
+    <div class="hint" id="hint"><span class="L-ar">اضغط على السبحة أو في أي مكان ✨</span><span class="L-en">Tap the beads or anywhere ✨</span></div>
   </div>
 
   <section class="mine" aria-label="سجلك">
-    <div class="m"><b id="mTotal">0</b><span>إجمالي استغفارك</span><span class="en">Your total</span></div>
-    <div class="m"><b id="mToday">0</b><span>النهارده</span><span class="en">Today</span></div>
-    <div class="m"><b id="mStreak">0</b><span>🔥 أيام متواصلة</span><span class="en">Day streak</span></div>
+    <div class="m"><b id="mTotal">0</b><span class="L-ar">إجمالي استغفارك</span><span class="L-en">Your total</span></div>
+    <div class="m"><b id="mToday">0</b><span class="L-ar">النهارده</span><span class="L-en">Today</span></div>
+    <div class="m"><b id="mStreak">0</b><span class="L-ar">🔥 أيام متواصلة</span><span class="L-en">🔥 Day streak</span></div>
   </section>
 
   <footer class="global" id="global">
-    <div class="g-label">🤍 استغفرنا معًا حتى الآن<br><span class="en">Together we've said Astaghfirullah</span></div>
-    <div class="g-num"><span id="gTotal">—</span> <small>مرة · times</small></div>
-    <div class="g-live g-ar"><i></i> مباشر</div>
-    <div class="g-live g-en">LIVE <i></i></div>
-    <div class="g-goal">🎯 هدفنا: <b>مليار استغفار</b> بإذن الله<br><span class="en">Our goal: <b>one billion</b>, in shā’ Allah</span></div>
+    <div class="g-label"><span class="L-ar">🤍 استغفرنا معًا حتى الآن</span><span class="L-en">🤍 Together we've said Astaghfirullah</span></div>
+    <div class="g-num"><span id="gTotal">—</span> <small><i class="L-ar">مرة</i><i class="L-en">times</i></small></div>
+    <div class="g-live g-ar L-ar"><i></i> مباشر</div>
+    <div class="g-live g-en L-en">LIVE <i></i></div>
+    <div class="g-goal"><span class="L-ar">🎯 هدفنا: <b>مليار استغفار</b> بإذن الله</span><span class="L-en">🎯 Our goal: <b>one billion</b>, in shā’ Allah</span></div>
     <div class="g-bar"><div id="gBar"></div></div>
     <div class="g-next" id="gNext"></div>
   </footer>
 
   <div class="done" id="done">
-    <h2>تقبّل الله منك</h2>
-    <div class="en" style="font-size:16px;margin-top:-8px">May Allah accept from you</div>
-    <p>أتممت 100 مرة «أستغفر الله»<br>اللهم اغفر لنا ولوالدينا وللمسلمين أجمعين<br><span class="en">You completed 100 × Astaghfirullah</span></p>
+    <h2 class="L-ar">تقبّل الله منك</h2>
+    <h2 class="L-en">May Allah accept from you</h2>
+    <p><span class="L-ar">أتممت 100 مرة «أستغفر الله»<br>اللهم اغفر لنا ولوالدينا وللمسلمين أجمعين</span><span class="L-en">You completed 100 × Astaghfirullah<br>O Allah, forgive us, our parents and all Muslims</span></p>
     <button class="btn" id="againBtn">ابدأ من جديد · Start again</button>
   </div>
 
@@ -280,7 +292,7 @@
     }catch(e){}
   }
 
-  function renderSoundBtn(){ soundBtn.innerHTML = (soundOn?'🔊':'🔇') + ' <span>' + (soundOn?'الصوت · Sound':'صامت · Muted') + '</span>'; }
+  function renderSoundBtn(){ soundBtn.innerHTML = (soundOn?'🔊':'🔇') + ' <span>' + (soundOn?'<i class="L-ar">الصوت</i><i class="L-en">Sound</i>':'<i class="L-ar">صامت</i><i class="L-en">Muted</i>') + '</span>'; }
 
   // ===== تحديث الواجهة =====
   function updateUI(){
@@ -565,10 +577,10 @@
     const key = next + ':' + Math.floor(pct);
     if(key === lastGoalKey) return; lastGoalKey = key;
     gBar.style.width = pct.toFixed(1) + '%';
-    if(n >= GOAL){ gNext.innerHTML = 'الحمد لله وصلنا المليار 🤍<br><span class="en">Alhamdulillah, we reached one billion</span>'; gBar.style.width = '100%'; return; }
+    if(n >= GOAL){ gNext.innerHTML = '<span class="L-ar">الحمد لله وصلنا المليار 🤍</span><span class="L-en">Alhamdulillah, we reached one billion 🤍</span>'; gBar.style.width = '100%'; return; }
     const left = (next - n).toLocaleString('en-US');
-    gNext.innerHTML = (prev ? '✅ عدّينا ' + stageName(prev) + ' — ' : '') + 'المرحلة الجاية: ' + stageName(next) + ' (فاضل ' + left + ')'
-      + '<br><span class="en">' + (prev ? '✅ Passed ' + stageEn(prev) + ' · ' : '') + 'Next milestone: ' + stageEn(next) + ' (' + left + ' to go)</span>';
+    gNext.innerHTML = '<span class="L-ar">' + (prev ? '✅ عدّينا ' + stageName(prev) + ' — ' : '') + 'المرحلة الجاية: ' + stageName(next) + ' (فاضل ' + left + ')'
+      + '</span><span class="L-en">' + (prev ? '✅ Passed ' + stageEn(prev) + ' · ' : '') + 'Next milestone: ' + stageEn(next) + ' (' + left + ' to go)</span>';
   }
 
   // عدّاد متحرك
@@ -593,7 +605,7 @@
     hintEl.style.opacity = 0;
     if(count<TARGET){
       const rs=document.getElementById('resume');
-      rs.innerHTML='أهلًا بيك تاني 🤍 كمّل من ' + count + ' · <span class="en">Welcome back</span>';
+      rs.innerHTML='<span class="L-ar">أهلًا بيك تاني 🤍 كمّل من ' + count + '</span><span class="L-en">Welcome back 🤍 continue from ' + count + '</span>';
       rs.classList.add('show'); setTimeout(()=>rs.classList.remove('show'), 3000);
     }
   }
@@ -602,6 +614,15 @@
   if(count>=TARGET) doneEl.classList.add('show');
   requestAnimationFrame(frame);
 })();
+</script>
+<script>
+document.getElementById('langBtn').addEventListener('click',function(){
+  var en=document.documentElement.classList.toggle('lang-en');
+  document.documentElement.lang=en?'en':'ar'; document.documentElement.dir=en?'ltr':'rtl';
+  try{localStorage.setItem('anastalk-lang',en?'en':'ar');}catch(e){}
+  try{dispatchEvent(new Event('resize'));}catch(e){}
+});
+if(document.documentElement.classList.contains('lang-en')){document.documentElement.lang='en';document.documentElement.dir='ltr';}
 </script>
 <div id="atToast" style="position:fixed;left:50%;top:18px;transform:translate(-50%,-160%);z-index:9998;max-width:min(92vw,440px);direction:rtl;
   background:#24403C;color:#F2E9D2;border:1px solid rgba(230,203,184,.4);border-radius:16px;padding:12px 16px;font:600 14.5px/1.8 Cairo,system-ui,sans-serif;
@@ -614,7 +635,7 @@
   var standalone=(matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
   var inApp=/Instagram|FBAN|FBAV|FB_IAB|TikTok|musical_ly|Snapchat/i.test(ua);
   var supported='serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;
-  function setOn(on){btn.classList.toggle('on',on);btn.innerHTML=on?'🔔 <span>التذكير شغال · On</span>':'🔔 <span>تذكير · Remind</span>';}
+  function setOn(on){btn.classList.toggle('on',on);btn.innerHTML=on?'🔔 <span><i class="L-ar">التذكير شغال</i><i class="L-en">Reminder on</i></span>':'🔔 <span><i class="L-ar">تذكير</i><i class="L-en">Remind</i></span>';}
   function u8(b){b=b.replace(/-/g,'+').replace(/_/g,'/');b+='='.repeat((4-b.length%4)%4);var r=atob(b),a=new Uint8Array(r.length);for(var i=0;i<r.length;i++)a[i]=r.charCodeAt(i);return a;}
   function post(body){return fetch('push/subscribe.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(r){return r.json();});}
   if(supported) navigator.serviceWorker.ready.then(function(reg){return reg.pushManager.getSubscription();}).then(function(s){setOn(!!s&&Notification.permission==='granted');}).catch(function(){});
@@ -628,6 +649,12 @@
     if(Notification.permission==='denied'){toast('الإشعارات مقفولة للموقع ده 🔕<br>فعّلها من إعدادات المتصفح ← الإشعارات',8000);return;}
     btn.disabled=true;
     navigator.serviceWorker.ready.then(function(reg){
+      // نتأكد إن أحدث نسخة من الـ Service Worker هي اللي شغالة قبل الاشتراك
+      return reg.update().catch(function(){}).then(function(){
+        var w=reg.installing||reg.waiting; if(!w) return reg;
+        return new Promise(function(r){w.addEventListener('statechange',function(){if(w.state==='activated')r(reg);});setTimeout(function(){r(reg);},5000);});
+      });
+    }).then(function(reg){
       return reg.pushManager.getSubscription().then(function(old){
         if(old&&Notification.permission==='granted'){
           if(!confirm('توقف تذكير الاستغفار؟')) return 'keep';
