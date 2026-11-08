@@ -236,7 +236,7 @@
         const src = actx.createBufferSource(); src.buffer = buf;
         const bp = actx.createBiquadFilter(); bp.type='bandpass';
         bp.frequency.value = (k? 3200: 2400) + Math.random()*400; bp.Q.value = 6;
-        const g = actx.createGain(); g.gain.value = k? .05 : .09;
+        const g = actx.createGain(); g.gain.value = k? .018 : .035;
         src.connect(bp).connect(g).connect(actx.destination);
         src.start(now+d);
       });
@@ -251,7 +251,7 @@
         const o = actx.createOscillator(); o.type='sine'; o.frequency.value=f;
         const g = actx.createGain();
         g.gain.setValueAtTime(0, now+i*.12);
-        g.gain.linearRampToValueAtTime(.04, now+i*.12+.02);
+        g.gain.linearRampToValueAtTime(.015, now+i*.12+.02);
         g.gain.exponentialRampToValueAtTime(.001, now+i*.12+1.2);
         o.connect(g).connect(actx.destination); o.start(now+i*.12); o.stop(now+i*.12+1.3);
       });
