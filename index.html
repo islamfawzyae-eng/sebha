@@ -17,7 +17,7 @@
     --text:#f3ead2; --muted:#9db3a6;
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-  html{height:100%}
+  html{height:100%;background:#04100c}
   body{
     font-family:'Cairo',sans-serif;color:var(--text);
     background:radial-gradient(ellipse at 50% 35%, #163a2d 0%, var(--bg1) 45%, var(--bg2) 100%) fixed;
@@ -61,7 +61,13 @@
     .hint{display:none}
     .ayah .ayah-en{font-size:11px;line-height:1.5;margin-top:4px}
     .g-goal .en,.g-label .en{font-size:.8em}
-    .global{padding:9px 14px;margin-bottom:10px}
+    .mine{z-index:2;width:min(92vw,420px);margin:0 auto 10px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .mine .m{background:rgba(255,255,255,.04);border:1px solid rgba(230,180,80,.18);border-radius:14px;padding:8px 4px;text-align:center;display:flex;flex-direction:column;gap:1px}
+  .mine b{font-size:20px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums;direction:ltr;line-height:1.2}
+  .mine span{font-size:11.5px;color:var(--muted)}
+  .mine .en{font-size:10px}
+  .mine .m.up b{animation:bump .35s ease}
+  .global{padding:9px 14px;margin-bottom:10px}
     .g-num{font-size:26px}
   }
   .en{font-family:'Inter','Cairo',sans-serif;direction:ltr;unicode-bidi:isolate;font-size:.85em;opacity:.75;letter-spacing:.2px}
@@ -80,6 +86,12 @@
   .resume{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:rgba(230,180,80,.15);border:1px solid rgba(230,180,80,.35);
     color:var(--gold-soft);padding:8px 18px;border-radius:999px;font-size:15px;opacity:0;transition:opacity .6s;pointer-events:none;white-space:nowrap}
   .resume.show{opacity:1}
+  .mine{z-index:2;width:min(92vw,420px);margin:0 auto 10px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .mine .m{background:rgba(255,255,255,.04);border:1px solid rgba(230,180,80,.18);border-radius:14px;padding:8px 4px;text-align:center;display:flex;flex-direction:column;gap:1px}
+  .mine b{font-size:20px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums;direction:ltr;line-height:1.2}
+  .mine span{font-size:11.5px;color:var(--muted)}
+  .mine .en{font-size:10px}
+  .mine .m.up b{animation:bump .35s ease}
   .global{
     z-index:2;width:min(92vw,420px);margin:0 auto 18px;padding:12px 18px;border-radius:18px;text-align:center;
     background:linear-gradient(180deg,rgba(230,180,80,.10),rgba(230,180,80,.04));border:1px solid rgba(230,180,80,.28);
@@ -139,6 +151,12 @@
     <div class="resume" id="resume"></div>
     <div class="hint" id="hint">اضغط على السبحة أو في أي مكان ✨<br><span class="en">Tap the beads or anywhere</span></div>
   </div>
+
+  <section class="mine" aria-label="سجلك">
+    <div class="m"><b id="mTotal">0</b><span>إجمالي استغفارك</span><span class="en">Your total</span></div>
+    <div class="m"><b id="mToday">0</b><span>النهارده</span><span class="en">Today</span></div>
+    <div class="m"><b id="mStreak">0</b><span>🔥 أيام متواصلة</span><span class="en">Day streak</span></div>
+  </section>
 
   <footer class="global" id="global">
     <div class="g-label">🌍 استغفر زوار الصفحة مع بعض<br><span class="en">Together, visitors have sought forgiveness</span></div>
@@ -243,6 +261,38 @@
     barEl.style.width = (count/TARGET*100)+'%';
   }
 
+  // ===== سجلّك الشخصي (على الجهاز) =====
+  const dayKey = d => { const x = d || new Date(); return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0'); };
+  const yesterdayKey = () => { const d = new Date(); d.setDate(d.getDate()-1); return dayKey(d); };
+  let stats = {total:0, days:{}, last:'', streak:0};
+  try{ const st = JSON.parse(localStorage.getItem('sebha-stats')||'null'); if(st && typeof st.total==='number') stats = Object.assign(stats, st); }catch(e){}
+  // أول مرة: نحسب العدد الحالي ضمن الإجمالي
+  if(stats.total === 0 && count > 0){ stats.total = count; stats.days[dayKey()] = count; stats.last = dayKey(); stats.streak = 1; }
+  function saveStats(){
+    // نحتفظ بآخر 60 يوم بس
+    const keys = Object.keys(stats.days).sort(); while(keys.length > 60){ delete stats.days[keys.shift()]; }
+    try{ localStorage.setItem('sebha-stats', JSON.stringify(stats)); }catch(e){}
+  }
+  function addStat(){
+    const today = dayKey();
+    if(stats.last !== today){
+      stats.streak = (stats.last === yesterdayKey()) ? stats.streak + 1 : 1;
+      stats.last = today;
+    }
+    stats.total++; stats.days[today] = (stats.days[today]||0) + 1;
+    saveStats(); renderStats(true);
+  }
+  const mT = document.getElementById('mTotal'), mD = document.getElementById('mToday'), mS = document.getElementById('mStreak');
+  function renderStats(bump){
+    const today = dayKey();
+    const streak = (stats.last === today || stats.last === yesterdayKey()) ? stats.streak : 0;
+    mT.textContent = stats.total.toLocaleString('en-US');
+    mD.textContent = (stats.days[today]||0).toLocaleString('en-US');
+    mS.textContent = streak;
+    if(bump){ [mT,mD].forEach(el=>{ const m = el.parentElement; m.classList.remove('up'); void m.offsetWidth; m.classList.add('up'); }); }
+  }
+  renderStats(false);
+
   // ===== الضغطة =====
   const COOLDOWN = 800;   // أقل وقت بين الضغطة والتانية (ملّي ثانية)
   let lastTap = 0;
@@ -258,6 +308,7 @@
     ripples.push({x: x ?? W/2, y: y ?? H/2, r: 0, a: .6});
     clack();
     window.__sebhaAdd && window.__sebhaAdd();
+    addStat();
     try{ navigator.vibrate && navigator.vibrate(15); }catch(e){}
     dhikrEl.classList.add('pop'); setTimeout(()=>dhikrEl.classList.remove('pop'), 130);
     hintEl.style.opacity = 0;
