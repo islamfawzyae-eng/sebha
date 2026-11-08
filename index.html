@@ -9,7 +9,7 @@
 <meta property="og:description" content="استغفر 100 مرة وشوف كام مرة الناس استغفرت مع بعض">
 <meta name="theme-color" content="#0b1d17">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Amiri+Quran&family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg1:#0b1d17; --bg2:#04100c;
@@ -48,6 +48,22 @@
   .total{font-size:20px;color:var(--muted);font-weight:600}
   .progress{width:min(70vw,320px);height:6px;border-radius:6px;background:rgba(255,255,255,.08);margin-top:12px;overflow:hidden;z-index:2}
   .progress>div{height:100%;width:0;background:linear-gradient(90deg,#b9822b,var(--gold-soft));border-radius:6px;transition:width .3s ease}
+  .ayah{z-index:2;max-width:min(88vw,460px);text-align:center;margin-top:14px;padding:0 8px}
+  .ayah p{font-family:'Amiri Quran','Amiri',serif;font-size:clamp(14px,3.6vw,17px);line-height:2.1;color:rgba(243,234,210,.82)}
+  .ayah span{display:inline-block;margin-top:2px;font-family:'Cairo',sans-serif;font-size:11px;letter-spacing:.3px;color:var(--gold);opacity:.75}
+.ayah i{font-style:normal;font-family:'Cairo',sans-serif;font-size:.62em;color:var(--gold);border:1px solid rgba(230,180,80,.5);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;width:1.9em;height:1.9em;margin:0 3px;vertical-align:middle;line-height:1}
+  @media (max-height:740px){
+    .dhikr{margin-top:6px;font-size:clamp(32px,9vw,48px)}
+    .count{font-size:clamp(38px,10vw,52px)}
+    .progress{margin-top:8px}
+    .ayah{margin-top:8px}
+    .ayah p{font-size:13.5px;line-height:1.9}
+    .hint{display:none}
+    .global{padding:9px 14px;margin-bottom:10px}
+    .g-num{font-size:26px}
+  }
+  .ayah::before,.ayah::after{content:"";display:block;width:40px;height:1px;margin:0 auto 6px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.6}
+  .ayah::after{margin:8px auto 0}
   #stage{flex:1;width:100%;position:relative;cursor:pointer;touch-action:manipulation}
   canvas{position:absolute;inset:0;width:100%;height:100%}
   .hint{position:absolute;bottom:22px;width:100%;text-align:center;color:var(--muted);font-size:14px;pointer-events:none;transition:opacity .6s}
@@ -94,6 +110,11 @@
   <div class="dhikr" id="dhikr">أستغفر الله</div>
   <div class="counter"><span class="count" id="count">0</span><span class="total">/ 100</span></div>
   <div class="progress"><div id="bar"></div></div>
+
+  <div class="ayah">
+    <p>﴿فَقُلْتُ اسْتَغْفِرُوا رَبَّكُمْ إِنَّهُ كَانَ غَفَّارًا <i>١٠</i> يُرْسِلِ السَّمَاءَ عَلَيْكُم مِّدْرَارًا <i>١١</i> وَيُمْدِدْكُم بِأَمْوَالٍ وَبَنِينَ وَيَجْعَل لَّكُمْ جَنَّاتٍ وَيَجْعَل لَّكُمْ أَنْهَارًا <i>١٢</i>﴾</p>
+    <span>سورة نوح · الآيات 10–12</span>
+  </div>
 
   <div id="stage" role="button" aria-label="اضغط للتسبيح" tabindex="0">
     <canvas id="c"></canvas>
@@ -291,8 +312,8 @@
     flash *= Math.pow(0.992, dt);
 
     ctx.clearRect(0,0,W,H);
-    const cx = W/2, cy = H*0.47;
-    const R = Math.min(W*0.40, H*0.62, 230);
+    const R = Math.min(W*0.40, H*0.75, 230);
+    const cx = W/2, cy = H/2 - R*0.088*2.2 - (H < 360 ? 0 : 10);
     const tilt = 0.42;              // ميل الحلقة (المنظور)
     const bob = Math.sin(now/1400)*4; // حركة طفو خفيفة
 
