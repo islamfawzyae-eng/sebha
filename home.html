@@ -8,6 +8,18 @@
 <meta property="og:title" content="Anas Talk · أنس توك">
 <meta property="og:description" content="سبحة إلكترونية وعداد استغفار جماعي — استغفر معانا 🤍">
 <meta name="theme-color" content="#1D312F">
+<link rel="manifest" href="/sebha-app/app.json">
+<link rel="icon" type="image/png" href="/sebha-app/favicon-64.png">
+<link rel="apple-touch-icon" href="/sebha-app/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="أنس توك">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script>
+  // لو اتفتح كتطبيق من الشاشة الرئيسية يدخل على السبحة على طول
+  if ((window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true) location.replace('/sebha-app/?source=app');
+</script>
+<script src="/sebha-app/install.js" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;800&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
@@ -21,8 +33,7 @@
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='%23E6CBB8' stroke-width='1'%3E%3Cpath d='M40 4 L48 32 L76 40 L48 48 L40 76 L32 48 L4 40 L32 32 Z'/%3E%3Ccircle cx='40' cy='40' r='10'/%3E%3C/g%3E%3C/svg%3E")}
   .en{font-family:'Inter',sans-serif;direction:ltr;unicode-bidi:isolate}
   main{width:min(100%,520px);position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center}
-  .logo{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;font-size:40px;
-    background:radial-gradient(circle at 35% 30%,#ffdcdc,#c94446 35%,#5e1718 90%);box-shadow:0 0 40px rgba(230,203,184,.35),inset 0 -6px 14px rgba(0,0,0,.35)}
+  .logo{width:88px;height:110px;display:block}
   h1{font-family:'Amiri',serif;font-size:clamp(40px,11vw,58px);color:var(--gold-soft);margin-top:14px;line-height:1.2;text-shadow:0 0 26px rgba(230,203,184,.3)}
   .brand-en{font-size:15px;letter-spacing:4px;color:var(--muted);text-transform:uppercase;margin-top:2px}
   .tag{margin-top:16px;font-size:17px;line-height:1.8}
@@ -56,13 +67,13 @@
 <body>
 <div class="glow" aria-hidden="true"></div>
 <main>
-  <div class="logo">📿</div>
+  <img class="logo" src="/sebha-app/mark.svg" alt="أنس توك">
   <h1>أنس توك</h1>
   <div class="brand-en en">Anas Talk</div>
   <p class="tag">أذكار ومحتوى هادف… خطوة صغيرة كل يوم 🤍
     <span class="en">Remembrance & meaningful content — one small step every day</span></p>
 
-  <a class="cta" href="https://sebha.anastalk.com/">
+  <a class="cta" href="/sebha-app/">
     <span class="shine"></span>
     <div class="icon">📿</div>
     <h2>السبحة الإلكترونية</h2>
@@ -84,7 +95,7 @@
   const live = document.getElementById('live'), totalEl = document.getElementById('total');
   async function load(){
     try{
-      const r = await fetch('https://sebha.anastalk.com/api.php?t=' + Date.now(), {cache:'no-store'});
+      const r = await fetch('/sebha-app/api.php?t=' + Date.now(), {cache:'no-store'});
       if(!r.ok) return;
       const j = await r.json();
       if(typeof j.total === 'number'){ totalEl.textContent = j.total.toLocaleString('en-US'); live.hidden = false; }
