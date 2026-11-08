@@ -2,6 +2,11 @@
 // عداد الاستغفار الجماعي — sebha.anastalk.com
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if (preg_match('#^https://(www\.)?anastalk\.com$#', $origin)) {
+  header('Access-Control-Allow-Origin: ' . $origin);
+  header('Vary: Origin');
+}
 
 $dir  = __DIR__ . '/data';
 $file = $dir . '/total.txt';

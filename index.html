@@ -398,9 +398,10 @@
     flash *= Math.pow(0.992, dt);
 
     ctx.clearRect(0,0,W,H);
-    const R = Math.min(W*0.40, H*0.75, 230);
-    const cx = W/2, cy = H/2 - R*0.088*2.2 - (H < 360 ? 0 : 10);
-    const tilt = 0.42;              // ميل الحلقة (المنظور)
+    const tilt = 0.6;               // ميل الحلقة (المنظور) — أعلى = السبحة أطول لفوق
+    const need = 2*tilt + 0.72;     // الارتفاع المطلوب بالنسبة لـ R (الحلقة + الشُرّابة)
+    const R = Math.min(W*0.40, (H-24)/need, 230);
+    const cx = W/2, cy = 12 + R*tilt + R*0.06 + Math.max(0, (H - 24 - R*need)/2);
     const bob = Math.sin(now/1400)*4; // حركة طفو خفيفة
     placeCenter(cx, cy + bob - R*0.03, R);
 
