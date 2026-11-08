@@ -7,42 +7,42 @@
 <meta name="description" content="سبحة إلكترونية — استغفر الله 100 مرة، وشارك في عداد الاستغفار الجماعي">
 <meta property="og:title" content="سبحة إلكترونية — أستغفر الله 🤍">
 <meta property="og:description" content="استغفر 100 مرة وشوف كام مرة الناس استغفرت مع بعض">
-<meta name="theme-color" content="#0b1d17">
+<meta name="theme-color" content="#1D312F">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Amiri+Quran&family=Inter:ital,wght@0,400;0,600;1,400&family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg1:#0b1d17; --bg2:#04100c;
-    --gold:#e6b450; --gold-soft:#f6dc95;
-    --text:#f3ead2; --muted:#9db3a6;
+    --bg1:#1D312F; --bg2:#111e1c; --red:#AC3032; --sand:#E6CBB8; --egg:#F2E9D2;
+    --gold:#E6CBB8; --gold-soft:#F2E9D2;
+    --text:#F2E9D2; --muted:#a3b2ad;
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-  html{height:100%;background:#04100c}
+  html{height:100%;background:#111e1c}
   body{
     font-family:'Cairo',sans-serif;color:var(--text);
-    background:radial-gradient(ellipse at 50% 35%, #163a2d 0%, var(--bg1) 45%, var(--bg2) 100%) fixed;
+    background:radial-gradient(ellipse at 50% 35%, #294541 0%, var(--bg1) 45%, var(--bg2) 100%) fixed;
     overflow-x:hidden;overflow-y:auto;user-select:none;min-height:100%;-webkit-user-select:none;
     display:flex;flex-direction:column;align-items:center;
   }
   /* زخرفة خفيفة في الخلفية */
   body::before{
     content:"";position:fixed;inset:0;pointer-events:none;opacity:.06;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='%23e6b450' stroke-width='1'%3E%3Cpath d='M40 4 L48 32 L76 40 L48 48 L40 76 L32 48 L4 40 L32 32 Z'/%3E%3Ccircle cx='40' cy='40' r='10'/%3E%3C/g%3E%3C/svg%3E");
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='%23E6CBB8' stroke-width='1'%3E%3Cpath d='M40 4 L48 32 L76 40 L48 48 L40 76 L32 48 L4 40 L32 32 Z'/%3E%3Ccircle cx='40' cy='40' r='10'/%3E%3C/g%3E%3C/svg%3E");
   }
   header{width:100%;max-width:560px;display:flex;justify-content:space-between;align-items:center;padding:16px 18px 0;z-index:2}
   .btn{
-    background:rgba(255,255,255,.06);border:1px solid rgba(230,180,80,.25);color:var(--text);
+    background:rgba(255,255,255,.06);border:1px solid rgba(230,203,184,.25);color:var(--text);
     font-family:inherit;font-size:14px;padding:8px 14px;border-radius:999px;cursor:pointer;
     display:flex;align-items:center;gap:6px;transition:background .2s;
   }
-  .btn:hover{background:rgba(230,180,80,.15)}
+  .btn:hover{background:rgba(230,203,184,.15)}
   .center-dhikr{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;z-index:1;width:70%}
   .center-dhikr .dhikr{margin:0;font-size:var(--dz,44px)}
   .center-dhikr .dhikr-en{margin:0;font-size:var(--ez,11px);line-height:1.45}
   .center-dhikr .dhikr-en b{font-weight:600;color:var(--gold-soft);letter-spacing:1px}
   .dhikr{
     font-family:'Amiri',serif;font-size:clamp(38px,10vw,64px);color:var(--gold-soft);
-    margin-top:14px;text-shadow:0 0 24px rgba(230,180,80,.35);line-height:1.3;z-index:2;
+    margin-top:14px;text-shadow:0 0 24px rgba(230,203,184,.35);line-height:1.3;z-index:2;
     transition:transform .15s ease;
   }
   .dhikr.pop{transform:scale(1.08)}
@@ -51,11 +51,11 @@
   .count{font-size:clamp(44px,12vw,68px);font-weight:800;color:#fff;font-variant-numeric:tabular-nums;line-height:1}
   .total{font-size:20px;color:var(--muted);font-weight:600}
   .progress{width:min(70vw,320px);height:6px;border-radius:6px;background:rgba(255,255,255,.08);margin-top:12px;overflow:hidden;z-index:2}
-  .progress>div{height:100%;width:0;background:linear-gradient(90deg,#b9822b,var(--gold-soft));border-radius:6px;transition:width .3s ease}
+  .progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--red),var(--sand));border-radius:6px;transition:width .3s ease}
   .ayah{z-index:2;max-width:min(88vw,460px);text-align:center;margin-top:14px;padding:0 8px}
-  .ayah p{font-family:'Amiri Quran','Amiri',serif;font-size:clamp(14px,3.6vw,17px);line-height:2.1;color:rgba(243,234,210,.82)}
+  .ayah p{font-family:'Amiri Quran','Amiri',serif;font-size:clamp(14px,3.6vw,17px);line-height:2.1;color:rgba(242,233,210,.82)}
   .ayah span{display:inline-block;margin-top:2px;font-family:'Cairo',sans-serif;font-size:11px;letter-spacing:.3px;color:var(--gold);opacity:.75}
-.ayah i{font-style:normal;font-family:'Cairo',sans-serif;font-size:.62em;color:var(--gold);border:1px solid rgba(230,180,80,.5);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;width:1.9em;height:1.9em;margin:0 3px;vertical-align:middle;line-height:1}
+.ayah i{font-style:normal;font-family:'Cairo',sans-serif;font-size:.62em;color:var(--gold);border:1px solid rgba(230,203,184,.5);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;width:1.9em;height:1.9em;margin:0 3px;vertical-align:middle;line-height:1}
   @media (max-height:740px){
     .count{font-size:clamp(38px,10vw,52px)}
     .progress{margin-top:8px}
@@ -65,7 +65,7 @@
     .ayah .ayah-en{font-size:11px;line-height:1.5;margin-top:4px}
     .g-goal .en,.g-label .en{font-size:.8em}
     .mine{z-index:2;width:min(92vw,420px);margin:0 auto 10px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-  .mine .m{background:rgba(255,255,255,.04);border:1px solid rgba(230,180,80,.18);border-radius:14px;padding:8px 4px;text-align:center;display:flex;flex-direction:column;gap:1px}
+  .mine .m{background:rgba(255,255,255,.04);border:1px solid rgba(230,203,184,.18);border-radius:14px;padding:8px 4px;text-align:center;display:flex;flex-direction:column;gap:1px}
   .mine b{font-size:20px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums;direction:ltr;line-height:1.2}
   .mine span{font-size:11.5px;color:var(--muted)}
   .mine .en{font-size:10px}
@@ -75,7 +75,7 @@
   }
   .en{font-family:'Inter','Cairo',sans-serif;direction:ltr;unicode-bidi:isolate;font-size:.85em;opacity:.75;letter-spacing:.2px}
   .dhikr-en{z-index:2;font-family:'Inter',sans-serif;font-size:13px;letter-spacing:.6px;color:var(--muted);margin-top:-4px;margin-bottom:6px;text-align:center}
-  .ayah .ayah-en{font-family:'Inter',sans-serif;direction:ltr;font-size:12px;line-height:1.65;color:rgba(243,234,210,.6);margin-top:8px;font-style:italic}
+  .ayah .ayah-en{font-family:'Inter',sans-serif;direction:ltr;font-size:12px;line-height:1.65;color:rgba(242,233,210,.6);margin-top:8px;font-style:italic}
   .ayah .en-ref{font-family:'Inter',sans-serif;direction:ltr;font-size:10.5px}
   .ayah-ar::after,.ayah-en-box::before{display:none!important}
   .ayah-ar{margin-top:10px}
@@ -86,18 +86,18 @@
   #stage{flex:1;min-height:300px;width:100%;position:relative;cursor:pointer;touch-action:manipulation}
   canvas{position:absolute;inset:0;width:100%;height:100%}
   .hint{position:absolute;bottom:4px;width:100%;text-align:center;color:var(--muted);font-size:14px;pointer-events:none;transition:opacity .6s}
-  .resume{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:rgba(230,180,80,.15);border:1px solid rgba(230,180,80,.35);
+  .resume{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:rgba(230,203,184,.15);border:1px solid rgba(230,203,184,.35);
     color:var(--gold-soft);padding:8px 18px;border-radius:999px;font-size:15px;opacity:0;transition:opacity .6s;pointer-events:none;white-space:nowrap}
   .resume.show{opacity:1}
   .mine{z-index:2;width:min(92vw,420px);margin:0 auto 10px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-  .mine .m{background:rgba(255,255,255,.04);border:1px solid rgba(230,180,80,.18);border-radius:14px;padding:8px 4px;text-align:center;display:flex;flex-direction:column;gap:1px}
+  .mine .m{background:rgba(255,255,255,.04);border:1px solid rgba(230,203,184,.18);border-radius:14px;padding:8px 4px;text-align:center;display:flex;flex-direction:column;gap:1px}
   .mine b{font-size:20px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums;direction:ltr;line-height:1.2}
   .mine span{font-size:11.5px;color:var(--muted)}
   .mine .en{font-size:10px}
   .mine .m.up b{animation:bump .35s ease}
   .global{
     z-index:2;width:min(92vw,420px);margin:0 auto 18px;padding:12px 18px;border-radius:18px;text-align:center;
-    background:linear-gradient(180deg,rgba(230,180,80,.10),rgba(230,180,80,.04));border:1px solid rgba(230,180,80,.28);
+    background:linear-gradient(180deg,rgba(230,203,184,.10),rgba(230,203,184,.04));border:1px solid rgba(230,203,184,.28);
     position:relative;transition:opacity .5s;
   }
   .global.off{opacity:0;pointer-events:none}
@@ -107,13 +107,13 @@
   .g-num small{font-size:15px;color:var(--muted);font-weight:600}
   .g-live.g-ar{right:14px;left:auto}
   .g-live.g-en{font-family:'Inter',sans-serif;letter-spacing:1px;font-weight:600}
-  .g-live{position:absolute;top:10px;left:14px;font-size:11px;color:#7fd3a8;display:flex;align-items:center;gap:5px}
-  .g-live i{width:7px;height:7px;border-radius:50%;background:#3ddc84;box-shadow:0 0 8px #3ddc84;animation:blink 1.6s infinite}
+  .g-live{position:absolute;top:10px;left:14px;font-size:11px;color:var(--sand);display:flex;align-items:center;gap:5px}
+  .g-live i{width:7px;height:7px;border-radius:50%;background:#e0484a;box-shadow:0 0 8px #e0484a;animation:blink 1.6s infinite}
   @keyframes blink{50%{opacity:.25}}
   .g-goal{font-size:14px;color:var(--text);margin-top:6px}
   .g-goal b{color:var(--gold-soft)}
   .g-bar{height:7px;border-radius:7px;background:rgba(255,255,255,.08);margin:8px 4px 4px;overflow:hidden}
-  .g-bar>div{height:100%;width:0;border-radius:7px;background:linear-gradient(90deg,#3ddc84,#e6b450);transition:width .6s ease}
+  .g-bar>div{height:100%;width:0;border-radius:7px;background:linear-gradient(90deg,var(--red),var(--sand));transition:width .6s ease}
   .g-next{font-size:12px;color:var(--muted)}
   .global.bump .g-num{animation:bump .35s ease}
   @keyframes bump{40%{transform:scale(1.06)}}
@@ -123,9 +123,9 @@
     background:rgba(3,12,9,.82);backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .5s;z-index:10;text-align:center;padding:24px;
   }
   .done.show{opacity:1;pointer-events:auto}
-  .done h2{font-family:'Amiri',serif;font-size:clamp(40px,11vw,64px);color:var(--gold-soft);text-shadow:0 0 30px rgba(230,180,80,.5)}
+  .done h2{font-family:'Amiri',serif;font-size:clamp(40px,11vw,64px);color:var(--gold-soft);text-shadow:0 0 30px rgba(230,203,184,.5)}
   .done p{color:var(--muted);font-size:17px;max-width:340px;line-height:1.8}
-  .done .btn{font-size:17px;padding:12px 28px;background:linear-gradient(180deg,#e6b450,#b9822b);color:#1b1305;border:none;font-weight:800}
+  .done .btn{font-size:17px;padding:12px 28px;background:linear-gradient(180deg,#c23a3c,var(--red));color:var(--egg);border:none;font-weight:800}
 </style>
 </head>
 <body>
@@ -368,9 +368,9 @@
     // توهّج
     if(glowAmt > 0.01){
       const gg = ctx.createRadialGradient(x,y,r*.4,x,y,r*3.2);
-      gg.addColorStop(0, `rgba(255,225,130,${.95*glowAmt})`);
-      gg.addColorStop(.4, `rgba(255,190,80,${.3*glowAmt})`);
-      gg.addColorStop(1, 'rgba(255,190,80,0)');
+      gg.addColorStop(0, `rgba(242,233,210,${.9*glowAmt})`);
+      gg.addColorStop(.4, `rgba(230,203,184,${.35*glowAmt})`);
+      gg.addColorStop(1, 'rgba(230,203,184,0)');
       ctx.fillStyle = gg;
       ctx.beginPath(); ctx.arc(x,y,r*3.2,0,Math.PI*2); ctx.fill();
     }
@@ -379,14 +379,14 @@
     const lx = x - r*.35, ly = y - r*.4;
     const g = ctx.createRadialGradient(lx, ly, r*.05, x, y, r*1.05);
     if(isMarker){
-      g.addColorStop(0, '#d8fff0'); g.addColorStop(.25, '#3fae86');
-      g.addColorStop(.75, '#0f5a41'); g.addColorStop(1, '#03241a');
+      g.addColorStop(0, '#ffdcdc'); g.addColorStop(.25, '#c94446');
+      g.addColorStop(.75, '#7a1f21'); g.addColorStop(1, '#2e0a0b');
     }else{
       const b = 1 + glowAmt*.35;
-      g.addColorStop(0, '#fff6dc');
-      g.addColorStop(.22, `rgb(${Math.min(255,240*b)|0},${Math.min(255,190*b)|0},${Math.min(255,95*b)|0})`);
-      g.addColorStop(.7, '#9a5d17');
-      g.addColorStop(1, '#3a1f05');
+      g.addColorStop(0, '#fffaf2');
+      g.addColorStop(.22, `rgb(${Math.min(255,224*b)|0},${Math.min(255,184*b)|0},${Math.min(255,152*b)|0})`);
+      g.addColorStop(.7, "#8a5a40");
+      g.addColorStop(1, '#3b2419');
     }
     ctx.fillStyle = g;
     ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.fill();
@@ -395,7 +395,7 @@
     ctx.fillStyle = 'rgba(255,255,255,.55)';
     ctx.beginPath(); ctx.ellipse(lx+r*.05, ly-r*.02, r*.22, r*.13, -0.6, 0, Math.PI*2); ctx.fill();
     // انعكاس سفلي خفيف
-    ctx.strokeStyle = 'rgba(255,220,160,.18)'; ctx.lineWidth = r*.08;
+    ctx.strokeStyle = 'rgba(242,233,210,.18)'; ctx.lineWidth = r*.08;
     ctx.beginPath(); ctx.arc(x, y, r*.82, Math.PI*.15, Math.PI*.85); ctx.stroke();
   }
 
@@ -426,13 +426,13 @@
     // ومضة خلفية
     if(flash > 0.01){
       const fg = ctx.createRadialGradient(cx, cy+R*tilt, 0, cx, cy+R*tilt, R*1.6);
-      fg.addColorStop(0, `rgba(255,205,110,${.22*flash})`);
-      fg.addColorStop(1, 'rgba(255,205,110,0)');
+      fg.addColorStop(0, `rgba(230,203,184,${.18*flash})`);
+      fg.addColorStop(1, 'rgba(230,203,184,0)');
       ctx.fillStyle = fg; ctx.fillRect(0,0,W,H);
     }
 
     // الخيط
-    ctx.strokeStyle = 'rgba(200,160,90,.35)'; ctx.lineWidth = 1.5;
+    ctx.strokeStyle = 'rgba(230,203,184,.3)'; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.ellipse(cx, cy+bob, R, R*tilt, 0, 0, Math.PI*2); ctx.stroke();
 
     // الحبّات مرتبة حسب العمق
@@ -461,14 +461,14 @@
     drawBead(0, baseR*0.9, baseR*0.9, 1, true, 0);
     ctx.rotate(sway*Math.PI/180);
     for(let k=-6;k<=6;k++){
-      ctx.strokeStyle = k%2 ? 'rgba(230,180,80,.85)' : 'rgba(190,140,55,.85)';
+      ctx.strokeStyle = k%2 ? 'rgba(172,48,50,.95)' : 'rgba(140,36,38,.95)';
       ctx.lineWidth = 1.6;
       ctx.beginPath();
       ctx.moveTo(k*1.2, baseR*1.7);
       ctx.quadraticCurveTo(k*2.5, baseR*3, k*3.4, baseR*4.4);
       ctx.stroke();
     }
-    ctx.fillStyle = '#c9902e';
+    ctx.fillStyle = '#AC3032';
     ctx.beginPath(); ctx.ellipse(0, baseR*1.75, baseR*.45, baseR*.22, 0, 0, Math.PI*2); ctx.fill();
     ctx.restore();
 
@@ -477,7 +477,7 @@
       const rp = ripples[k];
       rp.r += dt*0.35; rp.a -= dt*0.0018;
       if(rp.a<=0){ ripples.splice(k,1); continue; }
-      ctx.strokeStyle = `rgba(246,220,149,${rp.a})`; ctx.lineWidth = 2;
+      ctx.strokeStyle = `rgba(242,233,210,${rp.a})`; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.arc(rp.x, rp.y, rp.r, 0, Math.PI*2); ctx.stroke();
     }
 
