@@ -182,7 +182,7 @@
 
   <div class="counter"><span class="count" id="count">0</span><span class="total">/ 100</span></div>
   <div class="progress"><div id="bar"></div></div>
-  <a class="fajr-chip" id="fajrChip" href="/?home=1#fajr" hidden>🕌 <span id="fajrChipT"></span> ‹</a>
+  <a class="fajr-chip" id="fajrChip" href="/fajr/" hidden>🕌 <span id="fajrChipT"></span> ‹</a>
 
   <div id="stage" role="button" aria-label="اضغط للتسبيح" tabindex="0">
     <canvas id="c"></canvas>
@@ -633,11 +633,11 @@ if(document.documentElement.classList.contains('lang-en')){document.documentElem
 addEventListener('DOMContentLoaded',function(){
   if(!window.AnasFajr) return;
   var chip=document.getElementById('fajrChip'), t=document.getElementById('fajrChipT');
-  if(location.hostname==='sebha.anastalk.com') chip.href='https://anastalk.com/?home=1#fajr';
+  if(location.hostname==='sebha.anastalk.com') chip.href="https://anastalk.com/fajr/";
   function draw(){
     var p=AnasFajr.getPlace(), n=AnasFajr.upcoming(p,1)[0]; if(!n) return;
     var en=document.documentElement.classList.contains('lang-en');
-    t.textContent=(en?'Fajr ':'الفجر ')+AnasFajr.fmtTime(n,p)+' · '+(en?'':AnasFajr.fmtLeft(n-Date.now()));
+    t.textContent=(en?'Fajr ':'الفجر ')+AnasFajr.fmtTime(n,p)+' · '+AnasFajr.fmtLeft(n-Date.now());
     if(en) t.textContent=t.textContent.replace(/ · $/,'');
     chip.hidden=false;
   }

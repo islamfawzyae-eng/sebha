@@ -20,6 +20,9 @@
     ['نيويورك', 40.7128, -74.006, 'America/New_York'], ['تورنتو', 43.6532, -79.3832, 'America/Toronto'],
     ['لوس أنجلوس', 34.0522, -118.2437, 'America/Los_Angeles'], ['سيدني', -33.8688, 151.2093, 'Australia/Sydney']
   ];
+  var EN_NAMES = ["Cairo", "Alexandria", "Aswan", "Makkah", "Madinah", "Riyadh", "Jeddah", "Dubai", "Abu Dhabi", "Doha", "Kuwait City", "Manama", "Muscat", "Amman", "Jerusalem", "Beirut", "Damascus", "Baghdad", "Khartoum", "Tripoli", "Tunis", "Algiers", "Casablanca", "Istanbul", "Karachi", "Jakarta", "Kuala Lumpur", "London", "Paris", "Berlin", "New York", "Toronto", "Los Angeles", "Sydney"];
+  var METHOD_EN = {Egyptian: 'Egyptian General Authority of Survey', UmmAlQura: 'Umm al-Qura', Dubai: 'Dubai', Kuwait: 'Kuwait', Qatar: 'Qatar', Karachi: 'University of Islamic Sciences, Karachi', Turkey: 'Diyanet (Turkey)', NorthAmerica: 'ISNA (North America)', Singapore: 'Singapore / Malaysia / Indonesia', Tehran: 'Tehran', MuslimWorldLeague: 'Muslim World League'};
+  function isEn() { return document.documentElement.classList.contains('lang-en'); }
   var METHOD_NAMES = {
     Egyptian: 'الهيئة المصرية العامة للمساحة', UmmAlQura: 'تقويم أم القرى', Dubai: 'دبي', Kuwait: 'الكويت',
     Qatar: 'قطر', Karachi: 'جامعة العلوم الإسلامية بكراتشي', Turkey: 'رئاسة الشؤون الدينية التركية',
@@ -41,7 +44,9 @@
     return 'MuslimWorldLeague';
   }
   var deviceTz = (function () { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { return ''; } })();
-  function cityPlace(c) { return {name: c[0], lat: c[1], lng: c[2], tz: c[3], method: methodFor(c[3])}; }
+  function cityPlace(c) { var i = CITIES.indexOf(c); return {name: c[0], name_en: EN_NAMES[i] || c[0], lat: c[1], lng: c[2], tz: c[3], method: methodFor(c[3])}; }
+  function placeName(p) { return isEn() ? (p.gps ? 'Your location' : (p.name_en || EN_NAMES[CITIES.map(function (c) { return c[0]; }).indexOf(p.name)] || p.name)) : p.name; }
+  function methodName(m) { return (isEn() ? METHOD_EN : METHOD_NAMES)[m] || m; }
   function defaultPlace() {
     for (var i = 0; i < CITIES.length; i++) if (CITIES[i][3] === deviceTz) return cityPlace(CITIES[i]);
     return cityPlace(CITIES[3]); // مكة
@@ -78,10 +83,12 @@
   function fmtTime(t, p) {
     var o = {hour: 'numeric', minute: '2-digit'};
     if (p && p.tz) o.timeZone = p.tz;
-    try { return t.toLocaleTimeString('ar-EG', o); } catch (e) { delete o.timeZone; return t.toLocaleTimeString('ar-EG', o); }
+    var loc = isEn() ? 'en-US' : 'ar-EG';
+    try { return t.toLocaleTimeString(loc, o); } catch (e) { delete o.timeZone; return t.toLocaleTimeString(loc, o); }
   }
   function fmtLeft(ms) {
     var m = Math.max(0, Math.round(ms / 60000)), h = Math.floor(m / 60); m = m % 60;
+    if (isEn()) return 'in ' + (h ? h + 'h ' : '') + m + 'm';
     function n(x, one, two, many) { return x === 1 ? one : x === 2 ? two : (x >= 3 && x <= 10 ? x + ' ' + many : x + ' ' + one); }
     if (!h) return 'فاضل ' + n(m, 'دقيقة', 'دقيقتين', 'دقايق');
     return 'فاضل ' + n(h, 'ساعة', 'ساعتين', 'ساعات') + (m ? ' و' + n(m, 'دقيقة', 'دقيقتين', 'دقايق') : '');
@@ -139,7 +146,7 @@
       if (s) post({sub: s.toJSON(), tz: deviceTz, set: {fajr: true}, fajr: fajrPayload(getPlace()), quiet: true}).catch(function () {});
     }).catch(function () {});
   }
-  window.AnasFajr = {CITIES: CITIES, METHOD_NAMES: METHOD_NAMES, getPlace: getPlace, setPlace: setPlace, cityPlace: cityPlace,
+  window.AnasFajr = {CITIES: CITIES, EN_NAMES: EN_NAMES, METHOD_NAMES: METHOD_NAMES, placeName: placeName, methodName: methodName, isEn: isEn, getPlace: getPlace, setPlace: setPlace, cityPlace: cityPlace,
     locate: locate, upcoming: upcoming, fmtTime: fmtTime, fmtLeft: fmtLeft, enable: enable, disable: disable,
     isOn: isOn, refresh: refresh, swReg: swReg, BASE: BASE};
 })();

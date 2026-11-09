@@ -14,7 +14,7 @@ foreach (glob(SUBS_DIR . '/*.json') ?: [] as $f) {
     $place = $s['fajr_place'] ?? '';
     $code = push_send($s, ['title' => 'حان الآن موعد أذان الفجر 🕌',
         'body' => 'الصلاة خير من النوم' . ($place ? ' · ' . $place : '') . ' — دوس واسمع الأذان',
-        'url' => '/?home=1&adhan=1#fajr', 'tag' => 'fajr', 'fajr' => true], 15 * 60);
+        'url' => '/fajr/?adhan=1', 'tag' => 'fajr', 'fajr' => true], 15 * 60);
     $s['fajr_sent'] = $due;
     $s['fajr_times'] = array_values(array_filter($s['fajr_times'], function ($t) use ($now) { return $t > $now - 3600; }));
     if ($code === 404 || $code === 410) { @unlink($f); continue; }

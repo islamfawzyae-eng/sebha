@@ -55,7 +55,7 @@ if (empty($in['quiet'])) {
         $place = $rec['fajr_place'] ?? '';
         $test = push_send($rec, ['title' => 'أنس توك · أذان الفجر 🕌',
             'body' => 'تمام ✅ هنبّهك لأذان الفجر' . ($label ? ' الساعة ' . $label : '') . ($place ? ' في ' . $place : '') . ' إن شاء الله',
-            'url' => '/?home=1#fajr', 'tag' => 'fajr-welcome']);
+            'url' => '/fajr/', 'tag' => 'fajr-welcome']);
     } elseif ($rec['istighfar'] && !$was['istighfar']) {
         $test = push_send($rec, reminder_message() + ['tag' => 'welcome']);
     }
