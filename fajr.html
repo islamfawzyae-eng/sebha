@@ -120,6 +120,9 @@
   .voice .tag.f{background:rgba(230,203,184,.18);color:var(--gold-soft)}
   .voice .tag.r{background:rgba(163,178,173,.15);color:var(--muted)}
   .voice .pv{flex:none;width:38px;height:38px;border-radius:50%;border:1px solid rgba(230,203,184,.35);background:transparent;color:var(--gold-soft);font-size:14px;cursor:pointer}
+  .voice.add{border-style:dashed;justify-content:center;color:var(--gold);font-size:14.5px;font-weight:700}
+  .voice .del{flex:none;width:34px;height:34px;border-radius:50%;border:1px solid rgba(230,203,184,.25);background:transparent;color:var(--muted);cursor:pointer}
+  .v-note{font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.6}
   .f-sebha{margin-top:16px;display:block;text-align:center;color:var(--gold);font-size:14px;text-decoration:none}
 </style>
 </head>
@@ -144,6 +147,8 @@
     <div class="voices">
       <h4>🎙 <span class="L-ar">اختار صوت المؤذن</span><span class="L-en">Choose the muezzin</span></h4>
       <div id="voiceList"></div>
+      <label class="voice add" id="addVoice"><span id="addVoiceT"></span><input type="file" id="voiceFile" accept="audio/*,video/mp4,.mp3,.m4a,.aac,.ogg,.oga,.opus,.wav" hidden></label>
+      <div class="v-note" id="voiceNote"></div>
     </div>
     <div class="f-pick" id="fPick">
       <button class="b b-alt" id="fGps" type="button"><span class="L-ar">📍 حدّد مكاني تلقائي</span><span class="L-en">📍 Use my location</span></button>
@@ -169,18 +174,54 @@
 (function(){
   if(!window.AnasFajr) return;
   var F=AnasFajr, $=function(i){return document.getElementById(i);};
-  var place=F.getPlace(), next=null, timer=null, audio=$('adhan'), voice=F.getVoice(), previewId=null;
+  var place=F.getPlace(), next=null, timer=null, audio=$('adhan'), voice=F.getVoice(), previewId=null, custom=null;
   audio.src=voice.src;
+  // «أذانك من موبايلك»: الملف بيتحفظ على الجهاز بس (IndexedDB) وعمره ما بيترفع على السيرفر
+  function idb(){return new Promise(function(ok,no){var r=indexedDB.open('anastalk',1);r.onupgradeneeded=function(){r.result.createObjectStore('files');};r.onsuccess=function(){ok(r.result);};r.onerror=function(){no(r.error);};});}
+  function idbDo(mode,fn){return idb().then(function(db){return new Promise(function(ok,no){var tx=db.transaction('files',mode),st=tx.objectStore('files'),q=fn(st);tx.oncomplete=function(){ok(q&&q.result);};tx.onerror=function(){no(tx.error);};});});}
+  function useCustom(rec){
+    if(custom&&custom.src) URL.revokeObjectURL(custom.src);
+    custom=rec?{id:'custom',custom:true,name:rec.name,ar:rec.name,en:rec.name,src:URL.createObjectURL(rec.blob),dur:rec.dur||'',lic:'',link:''}:null;
+    var saved=null; try{saved=localStorage.getItem('anastalk-voice');}catch(e){}
+    if(custom&&saved==='custom'){voice=custom; if(audio.paused) audio.src=custom.src;}
+    if(!custom&&voice.id==='custom'){voice=F.VOICES[0]; F.setVoice(voice.id); if(audio.paused) audio.src=voice.src;}
+    drawVoices(); draw();
+  }
+  function fmtDur(sec){sec=Math.round(sec||0);return Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0');}
+  if(window.indexedDB) idbDo('readonly',function(st){return st.get('custom-adhan');}).then(function(r){if(r&&r.blob)useCustom(r);}).catch(function(){});
+  $('voiceFile').addEventListener('change',function(){
+    var file=this.files&&this.files[0]; this.value=''; if(!file) return;
+    if(file.size>40*1024*1024){msg((F.isEn()?'That file is too big 🙏 pick one under 40 MB':'الملف كبير قوي 🙏 اختار ملف أصغر من 40 ميجا'));return;}
+    var url=URL.createObjectURL(file), test=new Audio();
+    test.preload='metadata';
+    test.onloadedmetadata=function(){
+      var rec={blob:file,name:file.name.replace(/\.[a-z0-9]+$/i,'').slice(0,40),dur:fmtDur(test.duration)};
+      URL.revokeObjectURL(url);
+      idbDo('readwrite',function(st){return st.put(rec,'custom-adhan');}).then(function(){
+        F.setVoice('custom'); useCustom(rec);
+        msg((F.isEn()?'Done ✅ your adhan is saved on this phone and selected':'تمام ✅ اتحفظ أذانك على موبايلك واتختار'));
+      }).catch(function(){msg((F.isEn()?'Could not save the file on this device 🙏':'مقدرناش نحفظ الملف على الموبايل 🙏'));});
+    };
+    test.onerror=function(){URL.revokeObjectURL(url);msg((F.isEn()?'This file cannot be played 🙏 try mp3 or m4a':'الملف ده مش بيشتغل كصوت 🙏 جرّب mp3 أو m4a'));};
+    test.src=url;
+  });
   function drawVoices(){
     var box=$('voiceList'); box.innerHTML='';
-    F.VOICES.forEach(function(v){
+    F.VOICES.concat(custom?[custom]:[]).forEach(function(v){
       var d=document.createElement('div'); d.className='voice'+(v.id===voice.id?' sel':''); d.setAttribute('role','radio'); d.setAttribute('aria-checked',v.id===voice.id);
       var playing=previewId===v.id&&!audio.paused;
+      if(v.custom){
+        d.innerHTML='<span class="dot"></span><span class="nm"><b>📁 '+v.name.replace(/</g,'&lt;')+'</b><small>'+(F.isEn()?'Your own adhan':'أذانك من موبايلك')+(v.dur?' · '+v.dur:'')+'</small></span>'
+          +'<button class="pv" type="button" aria-label="preview">'+(playing?'⏸':'▶')+'</button><button class="del" type="button" aria-label="delete">🗑</button>';
+      } else
       d.innerHTML='<span class="dot"></span><span class="nm"><b>'+(F.isEn()?v.en:v.ar)+'<span class="tag '+(v.fajr?'f':'r')+'">'
         +(v.fajr?(F.isEn()?'Fajr adhan ✓':'أذان الفجر ✓'):(F.isEn()?'Regular adhan':'أذان عادي'))+'</span></b><small>'
         +(v.fajr?(F.isEn()?'Includes “prayer is better than sleep”':'فيه «الصلاة خير من النوم»'):(F.isEn()?'Without the Fajr phrase':'من غير «الصلاة خير من النوم»'))+' · '+v.dur+'</small></span>'
         +'<button class="pv" type="button" aria-label="preview">'+(playing?'⏸':'▶')+'</button>';
       d.onclick=function(e){
+        if(e.target.classList.contains('del')){ e.stopPropagation(); if(!confirm((F.isEn()?'Remove your adhan from this phone?':'تمسح أذانك من الموبايل؟'))) return;
+          if(previewId==='custom'){audio.pause();previewId=null;}
+          idbDo('readwrite',function(st){return st.delete('custom-adhan');}).then(function(){useCustom(null);resetPlayBtn();}); return; }
         if(e.target.classList.contains('pv')){ e.stopPropagation();
           if(previewId===v.id&&!audio.paused){audio.pause();previewId=null;drawVoices();resetPlayBtn();return;}
           audio.src=v.src; previewId=v.id; play().then(drawVoices); resetPlayBtn(); return; }
@@ -188,6 +229,8 @@
       };
       box.appendChild(d);
     });
+    $('addVoiceT').textContent=custom?(F.isEn()?'📁 Replace your own adhan':'📁 غيّر أذانك من الموبايل'):(F.isEn()?'📁 Pick an adhan from your phone':'📁 اختار أذان من موبايلك');
+    $('voiceNote').textContent=(F.isEn()?'Any adhan file you have, e.g. Makkah or your favourite muezzin. It stays on your phone only and is never uploaded.':'أي ملف أذان عندك، زي أذان الحرم أو أي مؤذن بتحبه. الملف بيفضل على موبايلك بس ومش بيترفع على الموقع.');
   }
   function resetPlayBtn(){ $('fPlay').textContent=(!audio.paused&&previewId===voice.id)?(F.isEn()?'⏸ Stop':'⏸ إيقاف'):(F.isEn()?'▶ Listen to adhan':'▶ اسمع الأذان'); }
   var sel=$('fCity');
@@ -204,7 +247,7 @@
     var o={weekday:'long',day:'numeric',month:'long'}; if(place.tz) o.timeZone=place.tz;
     try{$('fDate').textContent=next.toLocaleDateString(F.isEn()?'en-US':'ar-EG',o);}catch(e){}
     $('fMeta').innerHTML=(F.isEn()?'Calculation method: ':'طريقة الحساب: ')+F.methodName(place.method)
-      +'<br>'+(F.isEn()?'Adhan voice: ':'صوت الأذان: ')+'<span dir="ltr" style="unicode-bidi:isolate"><a href="'+voice.link+'" target="_blank" rel="noopener">'+voice.en+'</a> · '+voice.lic+'</span>';
+      +(voice.custom?'':'<br>'+(F.isEn()?'Adhan voice: ':'صوت الأذان: ')+'<span dir="ltr" style="unicode-bidi:isolate"><a href="'+voice.link+'" target="_blank" rel="noopener">'+voice.en+'</a> · '+voice.lic+'</span>');
     // لو الصفحة مفتوحة وقت الفجر يشتغل الأذان
     clearTimeout(timer); var ms=next-Date.now();
     if(ms>0&&ms<2147483000) timer=setTimeout(function(){showOverlay(true);draw();},ms);
