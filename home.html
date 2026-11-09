@@ -17,7 +17,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <script>
   // لو اتفتح كتطبيق من الشاشة الرئيسية يدخل على السبحة على طول
-  if ((window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true) location.replace('/sebha-app/?source=app');
+  if (((window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true) && !/[?&]home=1/.test(location.search)) location.replace('/sebha-app/?source=app');
 </script>
 <script src="/sebha-app/install.js" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -61,6 +61,34 @@
   .soon .en{display:block;font-size:10.5px;color:var(--muted);margin-top:2px}
   .soon-label{margin-top:26px;font-size:13px;color:var(--muted)}
   footer{margin-top:40px;font-size:12px;color:var(--muted);opacity:.7;position:relative;z-index:1}
+  /* كارت صلاة الفجر */
+  .fajr{margin-top:18px;width:100%;border-radius:24px;padding:20px 18px 16px;position:relative;scroll-margin-top:16px;
+    background:linear-gradient(170deg,rgba(36,64,60,.95),rgba(29,49,47,.95));border:1px solid rgba(230,203,184,.3);box-shadow:0 10px 40px rgba(0,0,0,.3)}
+  .fajr .f-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .fajr .f-title{font-family:'Amiri',serif;font-size:26px;color:var(--gold-soft);display:flex;align-items:center;gap:8px}
+  .fajr .f-place{font-size:13px;color:var(--gold);background:rgba(230,203,184,.1);border:1px solid rgba(230,203,184,.25);border-radius:999px;padding:4px 12px;cursor:pointer;font-family:inherit;max-width:55%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fajr .f-time{font-size:clamp(46px,14vw,62px);font-weight:800;color:var(--gold-soft);line-height:1.15;margin-top:8px;font-variant-numeric:tabular-nums}
+  .fajr .f-left{font-size:15px;color:var(--gold)}
+  .fajr .f-date{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .fajr .f-btns{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;justify-content:center}
+  .fajr button.b{border:0;border-radius:999px;padding:11px 20px;font:800 15px Cairo,sans-serif;cursor:pointer;color:var(--gold-soft)}
+  .fajr .b-main{background:linear-gradient(180deg,#c23a3c,var(--red));box-shadow:0 6px 18px rgba(172,48,50,.35)}
+  .fajr .b-main.on{background:rgba(230,203,184,.14);box-shadow:none;border:1px solid rgba(230,203,184,.4)!important}
+  .fajr .b-alt{background:rgba(230,203,184,.1);border:1px solid rgba(230,203,184,.3)!important}
+  .fajr .f-pick{display:none;margin-top:14px;gap:8px;flex-direction:column}
+  .fajr .f-pick.on{display:flex}
+  .fajr select{width:100%;padding:10px 12px;border-radius:14px;background:#1D312F;color:var(--gold-soft);border:1px solid rgba(230,203,184,.35);font:600 15px Cairo,sans-serif}
+  .fajr .f-meta{margin-top:12px;font-size:11.5px;color:var(--muted);line-height:1.7}
+  .fajr .f-meta a{color:var(--gold)}
+  .fajr .f-msg{margin-top:10px;font-size:13.5px;color:var(--gold);min-height:0}
+  .adhan-ov{position:fixed;inset:0;z-index:9990;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(14,26,24,.88);backdrop-filter:blur(6px)}
+  .adhan-ov.on{display:flex}
+  .adhan-ov .box{max-width:420px;width:100%;text-align:center;background:#24403C;border:1px solid rgba(230,203,184,.4);border-radius:28px;padding:28px 22px}
+  .adhan-ov h3{font-family:'Amiri',serif;font-size:34px;color:var(--gold-soft);line-height:1.3}
+  .adhan-ov p{color:var(--gold);margin-top:6px;font-size:16px}
+  .adhan-ov .row{display:flex;gap:10px;justify-content:center;margin-top:20px}
+  .adhan-ov button{border:0;border-radius:999px;padding:12px 24px;font:800 16px Cairo,sans-serif;cursor:pointer;color:var(--gold-soft);background:linear-gradient(180deg,#c23a3c,var(--red))}
+  .adhan-ov button.x{background:rgba(230,203,184,.12)}
   .glow{position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 70% 45% at 50% 0%,rgba(230,203,184,.10),transparent 70%)}
 </style>
 </head>
@@ -82,6 +110,26 @@
     <div class="live" id="live" hidden><i></i>استغفر الزوار مع بعض <b id="total">—</b> مرة · <span class="en">LIVE</span></div>
   </a>
 
+  <section class="fajr" id="fajr" aria-label="صلاة الفجر">
+    <div class="f-top">
+      <div class="f-title">🕌 صلاة الفجر</div>
+      <button class="f-place" id="fPlace" type="button">📍 …</button>
+    </div>
+    <div class="f-time" id="fTime">—</div>
+    <div class="f-left" id="fLeft"></div>
+    <div class="f-date" id="fDate"></div>
+    <div class="f-btns">
+      <button class="b b-main" id="fBell" type="button">🔔 نبّهني للفجر</button>
+      <button class="b b-alt" id="fPlay" type="button">▶ اسمع الأذان</button>
+    </div>
+    <div class="f-msg" id="fMsg"></div>
+    <div class="f-pick" id="fPick">
+      <button class="b b-alt" id="fGps" type="button">📍 حدّد مكاني تلقائي</button>
+      <select id="fCity" aria-label="اختار مدينتك"><option value="">أو اختار مدينتك…</option></select>
+    </div>
+    <div class="f-meta" id="fMeta"></div>
+  </section>
+
   <div class="soon-label">قريبًا · <span class="en">Coming soon</span></div>
   <div class="soon">
     <div>سبحان الله<span class="en">SubhanAllah</span></div>
@@ -89,6 +137,15 @@
     <div>الله أكبر<span class="en">Allahu Akbar</span></div>
   </div>
 </main>
+<div class="adhan-ov" id="adhanOv" role="dialog" aria-label="أذان الفجر">
+  <div class="box">
+    <div style="font-size:46px">🕌</div>
+    <h3>حان الآن موعد أذان الفجر</h3>
+    <p>الصلاة خير من النوم</p>
+    <div class="row"><button id="ovPlay" type="button">▶ تشغيل الأذان</button><button class="x" id="ovClose" type="button">إغلاق</button></div>
+  </div>
+</div>
+<audio id="adhan" preload="none" src="/sebha-app/adhan.mp3"></audio>
 <footer><span class="en">© Anas Talk</span></footer>
 <script>
 (function(){
@@ -102,6 +159,77 @@
     }catch(e){}
   }
   load(); setInterval(load, 10000);
+})();
+</script>
+<script src="/sebha-app/vendor/adhan.min.js"></script>
+<script src="/sebha-app/fajr.js"></script>
+<script>
+(function(){
+  if(!window.AnasFajr) return;
+  var F=AnasFajr, $=function(i){return document.getElementById(i);};
+  var place=F.getPlace(), next=null, timer=null, audio=$('adhan');
+  var sel=$('fCity');
+  F.CITIES.forEach(function(c,i){var o=document.createElement('option');o.value=i;o.textContent=c[0];sel.appendChild(o);});
+  function msg(h){$('fMsg').innerHTML=h||'';}
+  function draw(){
+    next=F.upcoming(place,1)[0];
+    $('fPlace').textContent='📍 '+place.name;
+    if(!next){$('fTime').textContent='—';return;}
+    $('fTime').textContent=F.fmtTime(next,place);
+    $('fLeft').textContent=F.fmtLeft(next-Date.now());
+    var o={weekday:'long',day:'numeric',month:'long'}; if(place.tz) o.timeZone=place.tz;
+    try{$('fDate').textContent=next.toLocaleDateString('ar-EG',o);}catch(e){}
+    $('fMeta').innerHTML='طريقة الحساب: '+(F.METHOD_NAMES[place.method]||place.method)
+      +'<br>صوت الأذان: <span dir="ltr" style="unicode-bidi:isolate">Aaqib Azeez · <a href="https://commons.wikimedia.org/wiki/File:The_Adhan_-_Muslim_Call_to_Prayer_-_Aaqib_Azeez.mp3" target="_blank" rel="noopener">Wikimedia Commons</a> · CC BY-SA 4.0</span>';
+    // لو الصفحة مفتوحة وقت الفجر يشتغل الأذان
+    clearTimeout(timer); var ms=next-Date.now();
+    if(ms>0&&ms<2147483000) timer=setTimeout(function(){showOverlay(true);draw();},ms);
+  }
+  function setPlace(p){place=p;F.setPlace(p);draw();if(F.isOn())F.refresh();}
+  $('fPlace').onclick=function(){$('fPick').classList.toggle('on');};
+  $('fGps').onclick=function(){
+    msg('بنحدد مكانك…');
+    F.locate().then(function(p){setPlace(p);msg('تمام ✅ المواعيد بقت حسب مكانك');$('fPick').classList.remove('on');})
+      .catch(function(){msg('مقدرناش نحدد مكانك 🙏 اختار مدينتك من القايمة');});
+  };
+  sel.onchange=function(){if(sel.value==='')return;setPlace(F.cityPlace(F.CITIES[+sel.value]));$('fPick').classList.remove('on');msg('');};
+  function bellState(){var on=F.isOn();$('fBell').classList.toggle('on',on);$('fBell').textContent=on?'🔔 التنبيه شغال':'🔔 نبّهني للفجر';}
+  var ua=navigator.userAgent, isIOS=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  var standalone=(matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
+  var inApp=/Instagram|FBAN|FBAV|FB_IAB|TikTok|musical_ly|Snapchat/i.test(ua);
+  $('fBell').onclick=function(){
+    var b=this;
+    if(inApp){msg('التنبيه مش بيشتغل جوه إنستجرام 🙏 افتح الصفحة في المتصفح من ⋯ فوق');return;}
+    if(!('serviceWorker' in navigator)||!('PushManager' in window)||!('Notification' in window)){
+      msg(isIOS&&!standalone?'على آيفون: ضيف التطبيق للشاشة الرئيسية الأول (زرار المشاركة ⬆︎ ← «إضافة إلى الشاشة الرئيسية») وبعدين افتحه وفعّل التنبيه':'المتصفح ده مش بيدعم التنبيهات 🙏 جرّب كروم أو Safari');return;}
+    if(Notification.permission==='denied'){msg('الإشعارات مقفولة للموقع ده 🔕 فعّلها من إعدادات المتصفح');return;}
+    b.disabled=true;
+    if(F.isOn()){
+      F.disable().then(function(){msg('وقفنا تنبيه الفجر 🔕');}).catch(function(){msg('حصلت مشكلة، جرّب تاني 🙏');}).then(function(){b.disabled=false;bellState();});
+      return;
+    }
+    msg('لحظة…');
+    F.enable(place).then(function(r){
+      msg(r&&r.test>=200&&r.test<300?'اتفعّل ✅ بعتنالك إشعار تأكيد دلوقتي، وهيوصلك تنبيه وقت أذان الفجر إن شاء الله':'اتفعّل تنبيه الفجر ✅');
+    }).catch(function(e){msg(e&&e.message==='denied'?'محتاجين توافق على الإشعارات علشان التنبيه يوصلك 🙏':'حصلت مشكلة، جرّب تاني 🙏');})
+      .then(function(){b.disabled=false;bellState();});
+  };
+  function play(){audio.currentTime=0;return audio.play().catch(function(){});}
+  $('fPlay').onclick=function(){
+    if(!audio.paused){audio.pause();this.textContent='▶ اسمع الأذان';return;}
+    var t=this;play().then(function(){t.textContent='⏸ إيقاف';});
+  };
+  audio.addEventListener('ended',function(){$('fPlay').textContent='▶ اسمع الأذان';});
+  function showOverlay(auto){
+    $('adhanOv').classList.add('on');
+    if(auto) play();
+  }
+  $('ovPlay').onclick=function(){play();this.textContent='🔊 الأذان شغال';};
+  $('ovClose').onclick=function(){$('adhanOv').classList.remove('on');audio.pause();};
+  if(/[?&]adhan=1/.test(location.search)) showOverlay(false);
+  bellState(); draw(); setInterval(draw,30000);
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)draw();});
+  F.refresh();
 })();
 </script>
 </body>
