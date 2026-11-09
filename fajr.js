@@ -146,7 +146,24 @@
       if (s) post({sub: s.toJSON(), tz: deviceTz, set: {fajr: true}, fajr: fajrPayload(getPlace()), quiet: true}).catch(function () {});
     }).catch(function () {});
   }
-  window.AnasFajr = {CITIES: CITIES, EN_NAMES: EN_NAMES, METHOD_NAMES: METHOD_NAMES, placeName: placeName, methodName: methodName, isEn: isEn, getPlace: getPlace, setPlace: setPlace, cityPlace: cityPlace,
+  // أصوات الأذان (كلها برخص مفتوحة — التفاصيل في adhans/CREDITS.md)
+  var VOICES = [
+    {id: 'khalaf-fajr', ar: 'أحمد خلف', en: 'Ahmed Khalaf', fajr: true, src: '/sebha-app/adhans/ahmed-khalaf-fajr.mp3',
+     lic: 'CC BY 4.0', link: 'https://github.com/nandxorandor/Athan', dur: '1:40'},
+    {id: 'besim-fajr', ar: 'بسيم عزمي · مسجد مالمو', en: 'Besim Azemi · Malmö Mosque', fajr: true, src: '/sebha-app/adhans/besim-azemi-fajr.mp3',
+     lic: 'CC BY 3.0', link: 'https://commons.wikimedia.org/wiki/File:Eid_al-Fitr_Fajr_azan_at_Malm%C3%B6_Mosque_-_19_August_2012.webm', dur: '3:50'},
+    {id: 'khalaf-1', ar: 'أحمد خلف', en: 'Ahmed Khalaf', fajr: false, src: '/sebha-app/adhans/ahmed-khalaf-1.mp3',
+     lic: 'CC BY 4.0', link: 'https://github.com/nandxorandor/Athan', dur: '2:25'},
+    {id: 'azeez', ar: 'عاقب عزيز', en: 'Aaqib Azeez', fajr: false, src: '/sebha-app/adhan.mp3',
+     lic: 'CC BY-SA 4.0', link: 'https://commons.wikimedia.org/wiki/File:The_Adhan_-_Muslim_Call_to_Prayer_-_Aaqib_Azeez.mp3', dur: '1:27'}
+  ];
+  function getVoice() {
+    var id = null; try { id = localStorage.getItem('anastalk-voice'); } catch (e) {}
+    for (var i = 0; i < VOICES.length; i++) if (VOICES[i].id === id) return VOICES[i];
+    return VOICES[0];
+  }
+  function setVoice(id) { try { localStorage.setItem('anastalk-voice', id); } catch (e) {} }
+  window.AnasFajr = {VOICES: VOICES, getVoice: getVoice, setVoice: setVoice, CITIES: CITIES, EN_NAMES: EN_NAMES, METHOD_NAMES: METHOD_NAMES, placeName: placeName, methodName: methodName, isEn: isEn, getPlace: getPlace, setPlace: setPlace, cityPlace: cityPlace,
     locate: locate, upcoming: upcoming, fmtTime: fmtTime, fmtLeft: fmtLeft, enable: enable, disable: disable,
     isOn: isOn, refresh: refresh, swReg: swReg, BASE: BASE};
 })();
