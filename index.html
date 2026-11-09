@@ -53,6 +53,8 @@
   }
   .btn:hover{background:rgba(230,203,184,.15)}
   header{gap:8px}
+  .fajr-chip{display:inline-flex;align-items:center;gap:6px;margin:6px auto 0;padding:4px 12px;border-radius:999px;font-size:12.5px;color:var(--sand);text-decoration:none;background:rgba(230,203,184,.08);border:1px solid rgba(230,203,184,.22);position:relative;z-index:3}
+  .fajr-chip[hidden]{display:none}
   /* اللغة: عربي افتراضيًا، والزرار يبدّل للإنجليزي */
   html:not(.lang-en) .L-en{display:none!important}
   html.lang-en .L-ar{display:none!important}
@@ -180,6 +182,7 @@
 
   <div class="counter"><span class="count" id="count">0</span><span class="total">/ 100</span></div>
   <div class="progress"><div id="bar"></div></div>
+  <a class="fajr-chip" id="fajrChip" href="/?home=1#fajr" hidden>🕌 <span id="fajrChipT"></span> ‹</a>
 
   <div id="stage" role="button" aria-label="اضغط للتسبيح" tabindex="0">
     <canvas id="c"></canvas>
@@ -624,6 +627,24 @@ document.getElementById('langBtn').addEventListener('click',function(){
 });
 if(document.documentElement.classList.contains('lang-en')){document.documentElement.lang='en';document.documentElement.dir='ltr';}
 </script>
+<script src="vendor/adhan.min.js" defer></script>
+<script src="fajr.js" defer></script>
+<script>
+addEventListener('DOMContentLoaded',function(){
+  if(!window.AnasFajr) return;
+  var chip=document.getElementById('fajrChip'), t=document.getElementById('fajrChipT');
+  if(location.hostname==='sebha.anastalk.com') chip.href='https://anastalk.com/?home=1#fajr';
+  function draw(){
+    var p=AnasFajr.getPlace(), n=AnasFajr.upcoming(p,1)[0]; if(!n) return;
+    var en=document.documentElement.classList.contains('lang-en');
+    t.textContent=(en?'Fajr ':'الفجر ')+AnasFajr.fmtTime(n,p)+' · '+(en?'':AnasFajr.fmtLeft(n-Date.now()));
+    if(en) t.textContent=t.textContent.replace(/ · $/,'');
+    chip.hidden=false;
+  }
+  draw(); setInterval(draw,30000); document.getElementById('langBtn').addEventListener('click',draw);
+  AnasFajr.refresh();
+});
+</script>
 <div id="atToast" style="position:fixed;left:50%;top:18px;transform:translate(-50%,-160%);z-index:9998;max-width:min(92vw,440px);direction:rtl;
   background:#24403C;color:#F2E9D2;border:1px solid rgba(230,203,184,.4);border-radius:16px;padding:12px 16px;font:600 14.5px/1.8 Cairo,system-ui,sans-serif;
   box-shadow:0 14px 40px rgba(0,0,0,.4);transition:transform .4s cubic-bezier(.2,.9,.3,1.2);text-align:center"></div>
@@ -638,7 +659,8 @@ if(document.documentElement.classList.contains('lang-en')){document.documentElem
   function setOn(on){btn.classList.toggle('on',on);btn.innerHTML=on?'🔔 <span><i class="L-ar">التذكير شغال</i><i class="L-en">Reminder on</i></span>':'🔔 <span><i class="L-ar">تذكير</i><i class="L-en">Remind</i></span>';}
   function u8(b){b=b.replace(/-/g,'+').replace(/_/g,'/');b+='='.repeat((4-b.length%4)%4);var r=atob(b),a=new Uint8Array(r.length);for(var i=0;i<r.length;i++)a[i]=r.charCodeAt(i);return a;}
   function post(body){return fetch('push/subscribe.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(r){return r.json();});}
-  if(supported) navigator.serviceWorker.ready.then(function(reg){return reg.pushManager.getSubscription();}).then(function(s){setOn(!!s&&Notification.permission==='granted');}).catch(function(){});
+  function flag(v){try{if(v===undefined)return localStorage.getItem('anastalk-istighfar-on');localStorage.setItem('anastalk-istighfar-on',v?'1':'0');}catch(e){}}
+  if(supported) navigator.serviceWorker.ready.then(function(reg){return reg.pushManager.getSubscription();}).then(function(s){var f=flag();setOn(!!s&&Notification.permission==='granted'&&(f==='1'||(f===null&&!(window.AnasFajr&&AnasFajr.isOn()))));}).catch(function(){});
   btn.addEventListener('click',function(){
     if(inApp){toast('الإشعارات مش بتشتغل جوه إنستجرام 🙏<br>افتح الصفحة في المتصفح من ⋯ فوق ← «فتح في المتصفح»',8000);return;}
     if(!supported){
@@ -656,16 +678,17 @@ if(document.documentElement.classList.contains('lang-en')){document.documentElem
       });
     }).then(function(reg){
       return reg.pushManager.getSubscription().then(function(old){
-        if(old&&Notification.permission==='granted'){
+        if(old&&Notification.permission==='granted'&&btn.classList.contains('on')){
           if(!confirm('توقف تذكير الاستغفار؟')) return 'keep';
-          return post({action:'unsubscribe',sub:old.toJSON()}).catch(function(){}).then(function(){return old.unsubscribe();}).then(function(){setOn(false);toast('وقفنا التذكير 🔕');return 'off';});
+          return post({sub:old.toJSON(),set:{istighfar:false}}).catch(function(){return {};}).then(function(r){flag(false);return r&&r.removed?old.unsubscribe():null;}).then(function(){setOn(false);toast('وقفنا التذكير 🔕');return 'off';});
         }
         return Notification.requestPermission().then(function(p){
           if(p!=='granted'){toast('محتاجين توافق على الإشعارات علشان التذكير يوصلك 🙏');return 'no';}
-          return fetch('push/subscribe.php',{cache:'no-store'}).then(function(r){return r.json();}).then(function(k){
+          return (old?Promise.resolve(old):fetch('push/subscribe.php',{cache:'no-store'}).then(function(r){return r.json();}).then(function(k){
             return reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:u8(k.key)});
-          }).then(function(sub){
-            return post({sub:sub.toJSON(),tz:(Intl.DateTimeFormat().resolvedOptions().timeZone||''),plan:'twice'});
+          })).then(function(sub){
+            flag(true);
+            return post({sub:sub.toJSON(),tz:(Intl.DateTimeFormat().resolvedOptions().timeZone||''),set:{istighfar:true}});
           }).then(function(r){
             setOn(true);
             toast(r&&r.test>=200&&r.test<300?'اتفعّل التذكير ✅<br>بعتنالك إشعار تجربة دلوقتي 🤍':'اتفعّل التذكير ✅',7000);

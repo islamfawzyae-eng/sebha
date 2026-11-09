@@ -1,6 +1,6 @@
 // أنس توك — Service Worker: يخلّي السبحة تفتح حتى من غير نت
-const V = 'anastalk-v3';
-const SHELL = ['./', 'index.html', 'icon-192.png', 'icon-512.png', 'mark.svg', 'install.js'];
+const V = 'anastalk-v4';
+const SHELL = ['./', 'index.html', 'icon-192.png', 'icon-512.png', 'mark.svg', 'install.js', 'fajr.js', 'vendor/adhan.min.js'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(V).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
 });
@@ -33,6 +33,7 @@ self.addEventListener('push', e => {
     body: m.body || 'أستغفر الله العظيم وأتوب إليه 🤍',
     icon: 'icon-192.png', badge: 'badge-96.png', dir: 'rtl', lang: 'ar',
     tag: m.tag || 'reminder', renotify: true,
+    requireInteraction: !!m.fajr, vibrate: m.fajr ? [400, 200, 400, 200, 800] : [200, 100, 200],
     data: {url: new URL(m.url || './?source=push', self.registration.scope).href}
   }));
 });
@@ -40,7 +41,8 @@ self.addEventListener('notificationclick', e => {
   e.notification.close();
   const url = (e.notification.data && e.notification.data.url) || self.registration.scope;
   e.waitUntil(clients.matchAll({type: 'window', includeUncontrolled: true}).then(ws => {
-    for (const w of ws) if (w.url.startsWith(self.registration.scope) && 'focus' in w) return w.focus();
+    const same = ws.find(w => w.url.split('#')[0].split('?')[0] === url.split('#')[0].split('?')[0]);
+    if (same && 'focus' in same) return (same.navigate ? same.navigate(url).catch(() => same) : Promise.resolve(same)).then(w => (w || same).focus());
     return clients.openWindow(url);
   }));
 });

@@ -6,7 +6,7 @@ require __DIR__ . '/lib.php';
 $sent = 0; $gone = 0; $fail = 0;
 foreach (glob(SUBS_DIR . '/*.json') ?: [] as $f) {
     $s = json_decode((string)file_get_contents($f), true);
-    if (!$s) continue;
+    if (!$s || !($s['istighfar'] ?? !isset($s['fajr']))) continue;
     $c = push_send($s, reminder_message());
     if ($c >= 200 && $c < 300) $sent++;
     elseif ($c === 404 || $c === 410) { @unlink($f); $gone++; }
