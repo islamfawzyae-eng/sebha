@@ -105,6 +105,21 @@
   .topbar img{width:34px;height:42px}
   .fajr{margin-top:22px;padding:26px 20px 20px}
   .fajr .f-time{font-size:clamp(58px,18vw,84px)}
+  .voices{margin-top:18px;text-align:start}
+  .voices h4{font-size:15px;color:var(--gold-soft);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .voice{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;margin-top:8px;cursor:pointer;
+    border:1px solid rgba(230,203,184,.2);background:rgba(29,49,47,.55);transition:border-color .2s,background .2s}
+  .voice.sel{border-color:var(--red);background:rgba(172,48,50,.16)}
+  .voice .dot{width:18px;height:18px;border-radius:50%;border:2px solid rgba(230,203,184,.5);flex:none;display:grid;place-items:center}
+  .voice.sel .dot{border-color:var(--red)}
+  .voice.sel .dot::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--red)}
+  .voice .nm{flex:1;min-width:0}
+  .voice .nm b{display:block;font-size:15px;color:var(--gold-soft)}
+  .voice .nm small{font-size:12px;color:var(--muted)}
+  .voice .tag{font-size:11px;border-radius:999px;padding:2px 8px;margin-inline-start:4px;white-space:nowrap}
+  .voice .tag.f{background:rgba(230,203,184,.18);color:var(--gold-soft)}
+  .voice .tag.r{background:rgba(163,178,173,.15);color:var(--muted)}
+  .voice .pv{flex:none;width:38px;height:38px;border-radius:50%;border:1px solid rgba(230,203,184,.35);background:transparent;color:var(--gold-soft);font-size:14px;cursor:pointer}
   .f-sebha{margin-top:16px;display:block;text-align:center;color:var(--gold);font-size:14px;text-decoration:none}
 </style>
 </head>
@@ -126,6 +141,10 @@
       <button class="b b-alt" id="fPlay" type="button"></button>
     </div>
     <div class="f-msg" id="fMsg"></div>
+    <div class="voices">
+      <h4>🎙 <span class="L-ar">اختار صوت المؤذن</span><span class="L-en">Choose the muezzin</span></h4>
+      <div id="voiceList"></div>
+    </div>
     <div class="f-pick" id="fPick">
       <button class="b b-alt" id="fGps" type="button"><span class="L-ar">📍 حدّد مكاني تلقائي</span><span class="L-en">📍 Use my location</span></button>
       <select id="fCity" aria-label="City"><option value="" id="fCity0">…</option></select>
@@ -142,7 +161,7 @@
     <div class="row"><button id="ovPlay" type="button"><span class="L-ar">▶ تشغيل الأذان</span><span class="L-en">▶ Play adhan</span></button><button class="x" id="ovClose" type="button"><span class="L-ar">إغلاق</span><span class="L-en">Close</span></button></div>
   </div>
 </div>
-<audio id="adhan" preload="none" src="/sebha-app/adhan.mp3"></audio>
+<audio id="adhan" preload="none"></audio>
 <footer><span class="en">© Anas Talk</span></footer>
 <script src="/sebha-app/vendor/adhan.min.js"></script>
 <script src="/sebha-app/fajr.js"></script>
@@ -150,7 +169,27 @@
 (function(){
   if(!window.AnasFajr) return;
   var F=AnasFajr, $=function(i){return document.getElementById(i);};
-  var place=F.getPlace(), next=null, timer=null, audio=$('adhan');
+  var place=F.getPlace(), next=null, timer=null, audio=$('adhan'), voice=F.getVoice(), previewId=null;
+  audio.src=voice.src;
+  function drawVoices(){
+    var box=$('voiceList'); box.innerHTML='';
+    F.VOICES.forEach(function(v){
+      var d=document.createElement('div'); d.className='voice'+(v.id===voice.id?' sel':''); d.setAttribute('role','radio'); d.setAttribute('aria-checked',v.id===voice.id);
+      var playing=previewId===v.id&&!audio.paused;
+      d.innerHTML='<span class="dot"></span><span class="nm"><b>'+(F.isEn()?v.en:v.ar)+'<span class="tag '+(v.fajr?'f':'r')+'">'
+        +(v.fajr?(F.isEn()?'Fajr adhan ✓':'أذان الفجر ✓'):(F.isEn()?'Regular adhan':'أذان عادي'))+'</span></b><small>'
+        +(v.fajr?(F.isEn()?'Includes “prayer is better than sleep”':'فيه «الصلاة خير من النوم»'):(F.isEn()?'Without the Fajr phrase':'من غير «الصلاة خير من النوم»'))+' · '+v.dur+'</small></span>'
+        +'<button class="pv" type="button" aria-label="preview">'+(playing?'⏸':'▶')+'</button>';
+      d.onclick=function(e){
+        if(e.target.classList.contains('pv')){ e.stopPropagation();
+          if(previewId===v.id&&!audio.paused){audio.pause();previewId=null;drawVoices();resetPlayBtn();return;}
+          audio.src=v.src; previewId=v.id; play().then(drawVoices); resetPlayBtn(); return; }
+        voice=v; F.setVoice(v.id); if(audio.paused){audio.src=v.src;} drawVoices(); draw();
+      };
+      box.appendChild(d);
+    });
+  }
+  function resetPlayBtn(){ $('fPlay').textContent=(!audio.paused&&previewId===voice.id)?(F.isEn()?'⏸ Stop':'⏸ إيقاف'):(F.isEn()?'▶ Listen to adhan':'▶ اسمع الأذان'); }
   var sel=$('fCity');
   function fillCities(){sel.querySelectorAll('option[value]:not([value=""])').forEach(function(o){o.remove();});$('fCity0').textContent=(F.isEn()?'…or pick your city':'أو اختار مدينتك…');F.CITIES.forEach(function(c,i){var o=document.createElement('option');o.value=i;o.textContent=F.isEn()?F.EN_NAMES[i]:c[0];sel.appendChild(o);});}
   fillCities();
@@ -158,14 +197,14 @@
   function draw(){
     next=F.upcoming(place,1)[0];
     $('fPlace').textContent='📍 '+F.placeName(place);
-    if(audio.paused) $('fPlay').textContent=(F.isEn()?'▶ Listen to adhan':'▶ اسمع الأذان');
+    resetPlayBtn();
     if(!next){$('fTime').textContent='—';return;}
     $('fTime').textContent=F.fmtTime(next,place);
     $('fLeft').textContent=F.fmtLeft(next-Date.now());
     var o={weekday:'long',day:'numeric',month:'long'}; if(place.tz) o.timeZone=place.tz;
     try{$('fDate').textContent=next.toLocaleDateString(F.isEn()?'en-US':'ar-EG',o);}catch(e){}
     $('fMeta').innerHTML=(F.isEn()?'Calculation method: ':'طريقة الحساب: ')+F.methodName(place.method)
-      +'<br>'+(F.isEn()?'Adhan voice: ':'صوت الأذان: ')+'<span dir="ltr" style="unicode-bidi:isolate"><a href="https://commons.wikimedia.org/wiki/File:The_Adhan_-_Muslim_Call_to_Prayer_-_Aaqib_Azeez.mp3" target="_blank" rel="noopener">Aaqib Azeez</a> · CC BY-SA 4.0</span>';
+      +'<br>'+(F.isEn()?'Adhan voice: ':'صوت الأذان: ')+'<span dir="ltr" style="unicode-bidi:isolate"><a href="'+voice.link+'" target="_blank" rel="noopener">'+voice.en+'</a> · '+voice.lic+'</span>';
     // لو الصفحة مفتوحة وقت الفجر يشتغل الأذان
     clearTimeout(timer); var ms=next-Date.now();
     if(ms>0&&ms<2147483000) timer=setTimeout(function(){showOverlay(true);draw();},ms);
@@ -201,19 +240,19 @@
   };
   function play(){audio.currentTime=0;return audio.play().catch(function(){});}
   $('fPlay').onclick=function(){
-    if(!audio.paused){audio.pause();this.textContent=(F.isEn()?'▶ Listen to adhan':'▶ اسمع الأذان');return;}
-    var t=this;play().then(function(){t.textContent=(F.isEn()?'⏸ Stop':'⏸ إيقاف');});
+    if(!audio.paused){audio.pause();previewId=null;resetPlayBtn();drawVoices();return;}
+    audio.src=voice.src;previewId=voice.id;play().then(function(){resetPlayBtn();drawVoices();});
   };
-  audio.addEventListener('ended',function(){$('fPlay').textContent=(F.isEn()?'▶ Listen to adhan':'▶ اسمع الأذان');});
+  audio.addEventListener('ended',function(){previewId=null;resetPlayBtn();drawVoices();});
   function showOverlay(auto){
-    $('adhanOv').classList.add('on');
+    $('adhanOv').classList.add('on'); audio.src=voice.src; previewId=voice.id;
     if(auto) play();
   }
   $('ovPlay').onclick=function(){play();this.textContent=(F.isEn()?'🔊 Playing…':'🔊 الأذان شغال');};
-  $('ovClose').onclick=function(){$('adhanOv').classList.remove('on');audio.pause();};
+  $('ovClose').onclick=function(){$('adhanOv').classList.remove('on');audio.pause();previewId=null;resetPlayBtn();drawVoices();};
   if(/[?&]adhan=1/.test(location.search)) showOverlay(false);
-  bellState(); draw(); setInterval(draw,30000);
-  document.addEventListener('anastalk-lang',function(){bellState();draw();fillCities();msg('');});
+  bellState(); draw(); drawVoices(); setInterval(draw,30000);
+  document.addEventListener('anastalk-lang',function(){bellState();draw();drawVoices();fillCities();msg('');});
   document.addEventListener('visibilitychange',function(){if(!document.hidden)draw();});
   F.refresh();
 })();
